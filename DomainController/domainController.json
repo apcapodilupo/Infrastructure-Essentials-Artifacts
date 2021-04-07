@@ -84,7 +84,8 @@
         "wadcfgxend": "\"><MetricAggregation scheduledTransferPeriod=\"PT1H\"/><MetricAggregation scheduledTransferPeriod=\"PT1M\"/></Metrics></DiagnosticMonitorConfiguration></WadCfg>",
         "nestedUri": "https://raw.githubusercontent.com/rbergertd/o365adds/master/nested/",
         "nestedVnetDeploy": "vnet-with-dns-server.json",
-        "DSCUri": "",
+        "baseUri": "https://github.com/rbergertd/o365adds/raw/master/",
+        "DSCUri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/builddc.zip?raw=true",
         "dscConfiguration": "dsc_createdomain.ps1\\CreateADPDC",
         "subnets": [
             {
@@ -295,7 +296,7 @@
                 "typeHandlerVersion": "2.19",
                 "autoUpgradeMinorVersion": "true",
                 "settings": {
-                    "modulesUrl": "[concat(variables('baseUri'), '/', variables('dscZipFile'))]",
+                    "modulesUrl": "[variables('DSCUri')]",
                     "configurationFunction": "[variables('dscConfiguration')]",
                     "properties": {
                         "domainName": "[parameters('fqDomainName')]",
