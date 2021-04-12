@@ -301,7 +301,7 @@
                         "domainName": "[parameters('fqDomainName')]",
                         "adminCreds": {
                             "userName": "[parameters('adminUserName')]",
-                            "password": "[parameters('adminPassword')]"
+                            "password": "PrivateSettingsRef:adminPassword"
                         }
                     }
                 },
