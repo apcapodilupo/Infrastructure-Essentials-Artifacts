@@ -124,18 +124,15 @@
                         "name": "[variables('adSubnetName')]",
                         "properties": {
                             "addressPrefix": "[variables('subnetAddressRange')]",
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.Storage"
+                                }
+                            ],
                             "networksecuritygroup": {
                                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
                             }
                         }
-                    }
-                ],
-                "serviceEndpoints": [
-                    {
-                        "service": "Microsoft.Storage",
-                        "locations": [
-                            "[variables('location')]"
-                        ]
                     }
                 ]
 
