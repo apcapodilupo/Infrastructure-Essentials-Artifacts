@@ -107,7 +107,7 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2016-03-30",
+            "apiVersion": "2016-12-01",
             "name": "[variables('adVnetName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
