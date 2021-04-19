@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "adminUsername": {
@@ -84,7 +84,7 @@
         "DSCUri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/builddc.zip?raw=true",
         "dscConfiguration": "dsc_createdomain.ps1\\CreateADPDC",
         "adConnectUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getADC.ps1",
-      
+        "location": "[resourceGroup().location]",
         "subnets": [
             {
                 "name": "[variables('adSubnetName')]",
@@ -129,7 +129,16 @@
                             }
                         }
                     }
+                ],
+                "serviceEndpoints": [
+                    {
+                        "service": "Microsoft.Storage",
+                        "locations": [
+                            "[variables('location')]"
+                        ]
+                    }
                 ]
+
             }
         },
         {
@@ -343,7 +352,7 @@
                 }
             }
         }
-        
-        
+
+
     ]
 }

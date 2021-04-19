@@ -5,25 +5,16 @@
         "tenantAdministrator": {
             "type": "String"
         },
-        "domainName": {
+        "fqDomainName": {
             "type": "String"
         },
         "addBastionHost": {
-            "type": "String"
+            "type": "bool"
         },
         "vnetResourceGroup": {
             "type": "String"
         },
         "location": {
-            "type": "String"
-        },
-        "domainConfigurationType": {
-            "type": "String"
-        },
-        "notificationSettings": {
-            "type": "Object"
-        },
-        "filteredSync": {
             "type": "String"
         }
     },
@@ -39,24 +30,31 @@
         "subnet3AddressRange": "10.0.2.0/27",
         "bastionHostName": "AzureBastionHost",
         "bastionPipName": "bastionHost-pip",
-        "sku": "Standard"
+        "sku": "Standard",
+        "domainConfigurationType": "FullySynced",
+        "notificationSettings": {
+            "notifyDcAdmins": "Enabled",
+            "notifyGlobalAdmins": "Enabled",
+            "additionalRecipients": null
+        },
+        "filteredSync": "Disabled"
     },
     "resources": [
         {
             "type": "Microsoft.AAD/DomainServices",
             "apiVersion": "2017-06-01",
-            "name": "[parameters('domainName')]",
+            "name": "[parameters('fqdomainName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
                 "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'), '/subnets/', variables ('subnetName'))]"
             ],
             "properties": {
-                "domainName": "[parameters('domainName')]",
+                "domainName": "[parameters('fqdomainName')]",
                 "subnetId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('vnetResourceGroup'), '/providers/Microsoft.Network/virtualNetworks/', variables('vnetName'), '/subnets/', variables('subnetName'))]",
-                "filteredSync": "[parameters('filteredSync')]",
-                "domainConfigurationType": "[parameters('domainConfigurationType')]",
-                "notificationSettings": "[parameters('notificationSettings')]",
+                "filteredSync": "[variables('filteredSync')]",
+                "domainConfigurationType": "[variables('domainConfigurationType')]",
+                "notificationSettings": "[variables('notificationSettings')]",
                 "sku": "[variables('sku')]"
             }
         },
@@ -161,7 +159,7 @@
             "apiVersion": "2016-02-01",
             "name": "UpdateVNetDNS",
             "dependsOn": [
-                "[concat('Microsoft.AAD/domainServices/', parameters('domainName'))]"
+                "[concat('Microsoft.AAD/domainServices/', parameters('fqdomainName'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -209,7 +207,7 @@
             "apiVersion": "2016-02-01",
             "name": "UpdateVNetDNSWithBastion",
             "dependsOn": [
-                "[concat('Microsoft.AAD/domainServices/', parameters('domainName'))]"
+                "[concat('Microsoft.AAD/domainServices/', parameters('fqdomainName'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -261,6 +259,7 @@
         {
             "type": "Microsoft.Network/publicIpAddresses",
             "apiVersion": "2019-02-01",
+            "condition": "[parameters('addBastionHost')]",
             "name": "[variables('bastionPipName')]",
             "location": "[parameters('location')]",
             "sku": {
@@ -268,12 +267,12 @@
             },
             "properties": {
                 "publicIPAllocationMethod": "Static"
-            },
-            "condition": "[equals(parameters('addBastionHost'), 'Yes')]"
+            }
         },
         {
             "type": "Microsoft.Network/bastionHosts",
             "apiVersion": "2018-10-01",
+            "condition": "[parameters('addBastionHost')]",
             "name": "[variables('bastionHostName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
@@ -295,8 +294,7 @@
                         }
                     }
                 ]
-            },
-            "condition": "[equals(parameters('addBastionHost'), 'Yes')]"
+            }
         }
     ],
     "outputs": {}
