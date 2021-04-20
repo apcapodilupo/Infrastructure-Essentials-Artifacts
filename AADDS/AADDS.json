@@ -8,9 +8,7 @@
         "fqDomainName": {
             "type": "String"
         },
-        "addBastionHost": {
-            "type": "bool"
-        },
+        
         "vnetResourceGroup": {
             "type": "String"
         },
