@@ -55,6 +55,13 @@
             "metadata": {
                 "description": "The Domain name for the newly created ADDS domain. In order to use the AD Connect synchronization, this must be a routable domain that is verified in Office 365/Azure Active Directory. It must be a valid Internet domain name (for example, .com, .org, .net, .us, etc.)."
             }
+        },
+        "deployBastion": {
+            "type": "bool",
+            "allowedValues": [
+                true,
+                false
+            ]
         }
     },
     "variables": {
@@ -81,6 +88,7 @@
         "wadcfgxend": "\"><MetricAggregation scheduledTransferPeriod=\"PT1H\"/><MetricAggregation scheduledTransferPeriod=\"PT1M\"/></Metrics></DiagnosticMonitorConfiguration></WadCfg>",
 
         "configureVnetDNSUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/vnet-with-dns-server.json",
+        "configureVnetDNSUriWithBastion": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/vnet-with-dns-server.json",
         "DSCUri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/builddc.zip?raw=true",
         "dscConfiguration": "dsc_createdomain.ps1\\CreateADPDC",
         "adConnectUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getADC.ps1",
@@ -345,7 +353,13 @@
                         "value": [
                             "[variables('dnsServerPrivateIp')]"
                         ]
+                    },
+                    "deployBastion": {
+                        "value": [
+                            "[parameters('deployBastion')]"
+                        ]
                     }
+
                 }
             }
         }

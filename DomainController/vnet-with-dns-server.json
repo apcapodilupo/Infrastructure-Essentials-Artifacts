@@ -25,13 +25,51 @@
             "metadata": {
                 "description": "The DNS address(es) of the DNS Server(s) used by the VNET"
             }
+        },
+        "deployBastion": {
+            "type": "bool",
+            "allowedValues": [
+                true,
+                false
+            ]
         }
     },
     "variables": {
+        "location": "[resourceGroup().location]",
+        "adSubnetName": "[concat('ADStaticSubnet',resourceGroup().name)]",
+        "subnetAddressRange": "10.0.0.0/24",
+        "subnetsWithBastion": [
+            {
+                "name": "[variables('adSubnetName')]",
+                "properties": {
+                    "addressPrefix": "[variables('subnetAddressRange')]",
+                    "networksecuritygroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
+                    }
+                }
+            },
+            {
+                "name": "AzureBastionSubnet",
+                "properties": {
+                    "addressPrefix": "10.0.2.0/27"
+                }
+            }
+
+        ],
+        "bastionHostName": "AzureBastionHost",
+        "bastionPipName": "bastionHost-pip",
+        "bastionSubnetName": "AzureBastionSubnet"
+
+
+
+
+
+
     },
     "resources": [
         {
             "name": "[parameters('virtualNetworkName')]",
+            "condition": "[not(parameters('deployBastion'))]",
             "type": "Microsoft.Network/virtualNetworks",
             "location": "[resourceGroup().location]",
             "apiVersion": "2015-06-15",
@@ -45,6 +83,64 @@
                     "dnsServers": "[parameters('DNSServerAddress')]"
                 },
                 "subnets": "[parameters('subnets')]"
+            }
+        },
+        {
+            "name": "[parameters('virtualNetworkName')]",
+            "condition": "[parameters('deployBastion')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2015-06-15",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('virtualNetworkAddressRange')]"
+                    ]
+                },
+                "dhcpOptions": {
+                    "dnsServers": "[parameters('DNSServerAddress')]"
+                },
+                "subnets": "[variables('subnetsWithBastion')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2019-02-01",
+            "condition": "[parameters('deployBastion')]",
+            "name": "[variables('bastionPipName')]",
+            "location": "[variables('location')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "type": "Microsoft.Network/bastionHosts",
+            "apiVersion": "2018-10-01",
+            "condition": "[parameters('deployBastion')]",
+            "name": "[variables('bastionHostName')]",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[parameters('virtualNetworkName')]",
+                "[variables('bastionPipName')]"
+
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "IpConf",
+                        "properties": {
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('bastionSubnetName'))]"
+                            },
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', variables('bastionPipName'))]"
+                            }
+                        }
+                    }
+                ]
             }
         }
     ]
