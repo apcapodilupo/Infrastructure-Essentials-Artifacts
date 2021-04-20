@@ -28,6 +28,7 @@
         },
         "deployBastion": {
             "type": "bool",
+            "defaultValue": false,
             "allowedValues": [
                 true,
                 false
