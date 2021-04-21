@@ -57,12 +57,7 @@
             }
         },
         "deployBastion": {
-            "type": "bool",
-            "defaultValue": false,
-            "allowedValues": [
-                true,
-                false
-            ]
+            "type": "string"
         }
     },
     "variables": {
@@ -354,7 +349,13 @@
                         "value": [
                             "[variables('dnsServerPrivateIp')]"
                         ]
+                    },
+                     "deployBastion": {
+                        "value": [
+                            "[parameters('deployBastion')]"
+                        ]
                     }
+                   
 
                 }
             }

@@ -27,12 +27,7 @@
             }
         },
         "deployBastion": {
-            "type": "bool",
-            "defaultValue": false,
-            "allowedValues": [
-                true,
-                false
-            ]
+            "type": "string"
         }
     },
     "variables": {
@@ -70,7 +65,7 @@
     "resources": [
         {
             "name": "[parameters('virtualNetworkName')]",
-            "condition": "[not(parameters('deployBastion'))]",
+            "condition": "[equals(parameters('deployBastion'), 'No')]",
             "type": "Microsoft.Network/virtualNetworks",
             "location": "[resourceGroup().location]",
             "apiVersion": "2015-06-15",
@@ -88,7 +83,7 @@
         },
         {
             "name": "[parameters('virtualNetworkName')]",
-            "condition": "[parameters('deployBastion')]",
+            "condition": "[equals(parameters('deployBastion'), 'Yes')]",
             "type": "Microsoft.Network/virtualNetworks",
             "location": "[resourceGroup().location]",
             "apiVersion": "2015-06-15",
@@ -107,7 +102,7 @@
         {
             "type": "Microsoft.Network/publicIpAddresses",
             "apiVersion": "2019-02-01",
-            "condition": "[parameters('deployBastion')]",
+            "condition": "[equals(parameters('deployBastion'), 'Yes')]",
             "name": "[variables('bastionPipName')]",
             "location": "[variables('location')]",
             "sku": {
@@ -120,7 +115,7 @@
         {
             "type": "Microsoft.Network/bastionHosts",
             "apiVersion": "2018-10-01",
-            "condition": "[parameters('deployBastion')]",
+            "condition": "[equals(parameters('deployBastion'), 'Yes')]",
             "name": "[variables('bastionHostName')]",
             "location": "[variables('location')]",
             "dependsOn": [
