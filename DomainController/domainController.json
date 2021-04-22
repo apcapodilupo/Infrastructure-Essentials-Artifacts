@@ -114,6 +114,7 @@
     "resources": [
         {
             "type": "Microsoft.Network/networkSecurityGroups",
+            "condition":"[not(parameters('deployBastion'))]",
             "apiVersion": "2018-08-01",
             "name": "[variables('defNsg')]",
             "location": "[resourceGroup().location]",
@@ -392,7 +393,7 @@
             "location": "[variables('location')]",
             "dependsOn": [
                 "[variables('bastionPipName')]",
-                "[variables('adVnetName')]"
+                "[variables('adVnetNameWithBastion')]"
             ],
             "properties": {
                 "ipConfigurations": [
