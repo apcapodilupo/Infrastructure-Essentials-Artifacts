@@ -432,10 +432,7 @@
                                 {
                                     "service": "Microsoft.Storage"
                                 }
-                            ],
-                            "networksecuritygroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
-                            }
+                            ]
                         }
                     },
                     {
