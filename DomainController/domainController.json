@@ -69,6 +69,7 @@
         "dcServername": "azuredc",
         "defNsg": "default-nsg",
         "adVnetName": "[concat('ADVNET',resourceGroup().name)]",
+        "adVnetNameWithBastion": "[concat('ADVNET-with-Bastion-',resourceGroup().name)]",
         "adSubnetName": "[concat('ADStaticSubnet',resourceGroup().name)]",
         "bastionSubnetName": "AzureBastionSubnet",
         "bastionPipName": "bastionHost-pip",
@@ -118,11 +119,13 @@
             "location": "[resourceGroup().location]",
             "properties": {}
         },
+
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2016-12-01",
             "name": "[variables('adVnetName')]",
             "location": "[resourceGroup().location]",
+            "condition":"[not(parameters('deployBastion'))]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('defNsg'))]"
             ],
@@ -146,29 +149,24 @@
                                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
                             }
                         }
-                    },
-                    {
-                        "name": "[variables('bastionSubnetName')]",
-                        "condition": "[parameters('deployBastion')]",
-                        "properties": {
-                            "addressPrefix": "[variables('bastionSubnetAddressRange')]",
-                            "networksecuritygroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
-                            }
-                        }
                     }
 
                 ]
 
             }
         },
+
+
+        
+
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2016-03-30",
             "name": "[concat(variables('dcServerName'),'-nic')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[variables('adVnetName')]"
+                "[variables('adVnetName')]",
+                "[variables('adVnetNameWithBastion')]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -411,7 +409,53 @@
                     }
                 ]
             }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2016-12-01",
+            "name": "[variables('adVnetNameWithBastion')]",
+            "condition":"[parameters('deployBastion')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('defNsg'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('vnetAddressRange')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('adSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[variables('subnetAddressRange')]",
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.Storage"
+                                }
+                            ],
+                            "networksecuritygroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "[variables('bastionSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[variables('bastionSubnetAddressRange')]",
+                            "networksecuritygroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
+                            }
+                        }
+                    }
+
+
+                ]
+
+            }
         }
+
 
 
 
