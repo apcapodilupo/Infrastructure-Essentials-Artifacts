@@ -417,9 +417,6 @@
             "name": "[variables('adVnetNameWithBastion')]",
             "condition":"[parameters('deployBastion')]",
             "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[concat('Microsoft.Network/networkSecurityGroups/', variables('defNsg'))]"
-            ],
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
