@@ -369,9 +369,6 @@
                         "value": [
                             "[variables('dnsServerPrivateIp')]"
                         ]
-                    },
-                    "deployBastion": {
-                        "value": "[parameters('deployBastion')]"
                     }
 
 
