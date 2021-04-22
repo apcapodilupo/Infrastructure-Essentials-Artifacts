@@ -444,10 +444,7 @@
                     {
                         "name": "[variables('bastionSubnetName')]",
                         "properties": {
-                            "addressPrefix": "[variables('bastionSubnetAddressRange')]",
-                            "networksecuritygroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
-                            }
+                            "addressPrefix": "[variables('bastionSubnetAddressRange')]"
                         }
                     }
 
