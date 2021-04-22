@@ -82,7 +82,7 @@
             }
         },
         {
-            "name": "[parameters('virtualNetworkName')]",
+            "name": "[concat(parameters('virtualNetworkName'), 'with-Bastion')]",
             "condition": "[parameters('deployBastion')]",
             "type": "Microsoft.Network/virtualNetworks",
             "location": "[resourceGroup().location]",
@@ -119,8 +119,8 @@
             "name": "[variables('bastionHostName')]",
             "location": "[variables('location')]",
             "dependsOn": [
-                "[parameters('virtualNetworkName')]",
-                "[variables('bastionPipName')]"
+                "[variables('bastionPipName')]",
+                "[concat(parameters('virtualNetworkName'), 'with-Bastion')]"
 
             ],
             "properties": {
