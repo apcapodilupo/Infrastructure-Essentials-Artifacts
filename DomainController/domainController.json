@@ -72,6 +72,7 @@
         "adVnetNameWithBastion": "[concat('ADVNET-with-Bastion-',resourceGroup().name)]",
         "adSubnetName": "[concat('ADStaticSubnet',resourceGroup().name)]",
         "azureBastionSubnetName": "AzureBastionSubnet",
+        "extensionName": "Microsoft.Insights.VMDiagnosticsSettings",
         "deployBastion": "[if(parameters('deployBastion'), 'Yes', 'No')]",
         "bastionPipName": "bastionHost-pip",
         "bastionHostName": "AzureBastionHost",
@@ -231,13 +232,6 @@
                         "sku": "[parameters('windowsOSVersion')]",
                         "version": "latest"
                     },
-                    "networkProfile": {
-                        "networkInterfaces": [
-                            {
-                                "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('dcServerName'),'-nic'))]"
-                            }
-                        ]
-                    },
                     "osDisk": {
                         "name": "[concat(variables('dcServerName'),'-osDisk')]",
                         "caching": "ReadWrite",
@@ -261,41 +255,54 @@
                             "createOption": "Empty",
                             "caching": "ReadOnly"
                         }
-                    ],
-                    
-                    "diagnosticsProfile": {
-                        "bootDiagnostics": {
-                            "enabled": "true",
-                            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
-                        }
-                    }
+                    ]
                 },
-                "resources": [
-                    {
-                        "type": "Microsoft.Compute/virtualMachines/extensions",
-                        "apiVersion": "2018-06-01",
-                        "name": "[concat(variables('dcServerName'),'/getADC')]",
-                        "location": "[resourceGroup().location]",
-                        "dependsOn": [
-                            "[variables('dcServername')]",
-                            "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]",
-                            "[variables('updateVNetDNS1')]"
-                        ],
-                        "properties": {
-                            "publisher": "Microsoft.Compute",
-                            "type": "CustomScriptExtension",
-                            "typeHandlerVersion": "1.9",
-                            "settings": {
-                                "fileUris": [
-                                    "[concat(variables('adConnectUri'))]"
-                                ],
-                                "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file getADC.ps1')]"
-                            }
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('dcServerName'),'-nic'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": "true",
+                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
+                    }
+                }
+            },
+            "resources": [
+                {
+                    "type": "extensions",
+                    "apiVersion": "2018-06-01",
+                    "name": "[variables('extensionName')]",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Compute/virtualMachines/', variables('dcServerName'))]"
+                    ],
+                    "tags": {
+                        "displayName": "AzureDiagnostics"
+                    },
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Diagnostics",
+                        "type": "IaaSDiagnostics",
+                        "typeHandlerVersion": "1.5",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "xmlCfg": "[base64(concat(variables('wadcfgxstart'), variables('wadmetricsresourceid'), variables('dcServerName'), variables('wadcfgxend')))]",
+                            "storageAccount": "[variables('storageAccountName')]"
+                        },
+                        "protectedSettings": {
+                            "storageAccountName": "[variables('storageAccountName')]",
+                            "storageAccountKey": "[listkeys(variables('accountid'), '2015-06-15').key1]",
+                            "storageAccountEndPoint": "https://core.windows.net"
                         }
                     }
-                ]
-            }
+                }
+            ]
         },
+
+
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2017-03-30",
