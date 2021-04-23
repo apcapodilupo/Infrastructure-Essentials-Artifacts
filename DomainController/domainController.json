@@ -96,7 +96,6 @@
         "wadcfgxend": "\"><MetricAggregation scheduledTransferPeriod=\"PT1H\"/><MetricAggregation scheduledTransferPeriod=\"PT1M\"/></Metrics></DiagnosticMonitorConfiguration></WadCfg>",
 
         "configureVnetDNSUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/vnet-with-dns-server.json",
-        "configureVnetDNSUriWithBastion": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/vnet-with-dns-server.json",
         "DSCUri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/builddc.zip?raw=true",
         "dscConfiguration": "dsc_createdomain.ps1\\CreateADPDC",
         "adConnectUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getADC.ps1",
@@ -184,8 +183,7 @@
             "name": "[concat(variables('dcServerName'),'-nic')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[variables('adVnetName')]",
-                "[variables('adVnetNameWithBastion')]"
+                "[variables('adVnetName')]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -395,7 +393,6 @@
         {
                 "type": "Microsoft.Resources/deployments",
                 "apiVersion": "2016-02-01",
-                "condition": "[equals(variables('deployBastion'), 'Yes')]",
                 "name": "[variables('updateVNetDNSWithBastion')]",
                 "dependsOn": [
                     "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]"
