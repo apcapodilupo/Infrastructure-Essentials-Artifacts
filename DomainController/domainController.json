@@ -255,7 +255,6 @@
                             "caching": "ReadOnly"
                         }
                     ],
-
                     "networkProfile": {
                         "networkInterfaces": [
                             {
