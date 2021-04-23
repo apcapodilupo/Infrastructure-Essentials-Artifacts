@@ -231,6 +231,13 @@
                         "sku": "[parameters('windowsOSVersion')]",
                         "version": "latest"
                     },
+                    "networkProfile": {
+                        "networkInterfaces": [
+                            {
+                                "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('dcServerName'),'-nic'))]"
+                            }
+                        ]
+                    },
                     "osDisk": {
                         "name": "[concat(variables('dcServerName'),'-osDisk')]",
                         "caching": "ReadWrite",
@@ -255,13 +262,7 @@
                             "caching": "ReadOnly"
                         }
                     ],
-                    "networkProfile": {
-                        "networkInterfaces": [
-                            {
-                                "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('dcServerName'),'-nic'))]"
-                            }
-                        ]
-                    },
+                    
                     "diagnosticsProfile": {
                         "bootDiagnostics": {
                             "enabled": "true",
