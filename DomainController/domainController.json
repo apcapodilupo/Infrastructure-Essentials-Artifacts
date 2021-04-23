@@ -72,6 +72,7 @@
         "adVnetNameWithBastion": "[concat('ADVNET-with-Bastion-',resourceGroup().name)]",
         "adSubnetName": "[concat('ADStaticSubnet',resourceGroup().name)]",
         "azureBastionSubnetName": "AzureBastionSubnet",
+        "deployBastion": "[if(parameters('deployBastion'), 'Yes', 'No')]",
         "bastionPipName": "bastionHost-pip",
         "bastionHostName": "AzureBastionHost",
         "updateVNetDNS1": "updateVNetDNS",
@@ -177,10 +178,6 @@
 
             }
         },
-
-
-
-
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2016-03-30",
@@ -262,8 +259,8 @@
                             "createOption": "Empty",
                             "caching": "ReadOnly"
                         }
-                    ]
-                    S
+                    ],
+
                     "networkProfile": {
                         "networkInterfaces": [
                             {
@@ -329,76 +326,77 @@
                         }
                     }
                 ]
-            },
-            {
-                "type": "Microsoft.Compute/virtualMachines/extensions",
-                "apiVersion": "2017-03-30",
-                "name": "[concat(variables('dcServerName'),'/InstallDomainController')]",
-                "location": "[resourceGroup().location]",
-                "dependsOn": [
-                    "[concat('Microsoft.Compute/virtualMachines/', variables('dcServerName'))]",
-                    "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('extensionName'))]"
-                ],
-                "properties": {
-                    "publisher": "Microsoft.Powershell",
-                    "type": "DSC",
-                    "typeHandlerVersion": "2.19",
-                    "autoUpgradeMinorVersion": "true",
-                    "settings": {
-                        "modulesUrl": "[variables('DSCUri')]",
-                        "configurationFunction": "[variables('dscConfiguration')]",
-                        "properties": {
-                            "domainName": "[parameters('fqDomainName')]",
-                            "adminCreds": {
-                                "userName": "[parameters('adminUserName')]",
-                                "password": "PrivateSettingsRef:adminPassword"
-                            }
-                        }
-                    },
-                    "protectedSettings": {
-                        "items": {
-                            "adminPassword": "[parameters('adminPassword')]"
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2017-03-30",
+            "name": "[concat(variables('dcServerName'),'/InstallDomainController')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', variables('dcServerName'))]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('extensionName'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.19",
+                "autoUpgradeMinorVersion": "true",
+                "settings": {
+                    "modulesUrl": "[variables('DSCUri')]",
+                    "configurationFunction": "[variables('dscConfiguration')]",
+                    "properties": {
+                        "domainName": "[parameters('fqDomainName')]",
+                        "adminCreds": {
+                            "userName": "[parameters('adminUserName')]",
+                            "password": "PrivateSettingsRef:adminPassword"
                         }
                     }
-                }
-            },
-            {
-                "type": "Microsoft.Resources/deployments",
-                "apiVersion": "2016-02-01",
-                "name": "[variables('updateVNetDNS1')]",
-                "condition": "[not(parameters('deployBastion'))]",
-                "dependsOn": [
-                    "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]"
-                ],
-                "properties": {
-                    "mode": "Incremental",
-                    "templateLink": {
-                        "uri": "[variables('configureVnetDNSUri')]",
-                        "contentVersion": "1.0.0.0"
-                    },
-                    "parameters": {
-                        "virtualNetworkName": {
-                            "value": "[variables('adVnetName')]"
-                        },
-                        "virtualNetworkAddressRange": {
-                            "value": "[variables('vnetAddressRange')]"
-                        },
-                        "subnets": {
-                            "value": "[variables('subnets')]"
-                        },
-                        "dnsServerAddress": {
-                            "value": [
-                                "[variables('dnsServerPrivateIp')]"
-                            ]
-                        }
+                },
+                "protectedSettings": {
+                    "items": {
+                        "adminPassword": "[parameters('adminPassword')]"
                     }
                 }
-            },
-            {
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2016-02-01",
+            "name": "[variables('updateVNetDNS1')]",
+            "condition": "[not(parameters('deployBastion'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('configureVnetDNSUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": {
+                        "value": "[variables('adVnetName')]"
+                    },
+                    "virtualNetworkAddressRange": {
+                        "value": "[variables('vnetAddressRange')]"
+                    },
+                    "subnets": {
+                        "value": "[variables('subnets')]"
+                    },
+                    "dnsServerAddress": {
+                        "value": [
+                            "[variables('dnsServerPrivateIp')]"
+                        ]
+                    }
+                }
+            }
+        },
+        {
                 "type": "Microsoft.Resources/deployments",
                 "apiVersion": "2016-02-01",
+                "condition": "[equals(variables('deployBastion'), 'Yes')]",
                 "name": "[variables('updateVNetDNSWithBastion')]",
-                "condition": "[not(parameters('deployBastion'))]",
                 "dependsOn": [
                     "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]"
                 ],
@@ -426,6 +424,8 @@
                     }
                 }
             }
+
+
 
 
 
