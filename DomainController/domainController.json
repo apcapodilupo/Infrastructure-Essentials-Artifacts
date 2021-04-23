@@ -332,8 +332,7 @@
             "name": "[concat(variables('dcServerName'),'/InstallDomainController')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('dcServerName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('extensionName'))]"
+                "[concat('Microsoft.Compute/virtualMachines/', variables('dcServerName'))]"
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
