@@ -71,10 +71,11 @@
         "adVnetName": "[concat('ADVNET',resourceGroup().name)]",
         "adVnetNameWithBastion": "[concat('ADVNET-with-Bastion-',resourceGroup().name)]",
         "adSubnetName": "[concat('ADStaticSubnet',resourceGroup().name)]",
-        "bastionSubnetName": "AzureBastionSubnet",
+        "azureBastionSubnetName": "AzureBastionSubnet",
         "bastionPipName": "bastionHost-pip",
         "bastionHostName": "AzureBastionHost",
         "updateVNetDNS1": "updateVNetDNS",
+        "updateVNetDNSWithBastion": "UpdateVnetDNS-with-Bastion",
         "vnetAddressRange": "10.0.0.0/16",
         "subnetAddressRange": "10.0.0.0/24",
         "bastionSubnetAddressRange": "10.0.0.0/27",
@@ -109,12 +110,32 @@
                     }
                 }
             }
+        ],
+        "subnetsWithBastion": [
+            {
+                "name": "[variables('adSubnetName')]",
+                "properties": {
+                    "addressPrefix": "[variables('subnetAddressRange')]",
+                    "networksecuritygroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
+                    }
+                }
+            },
+            {
+                "name": "[variables('azureBastionSubnetName')]",
+                "properties": {
+                    "addressPrefix": "[variables('bastionSubnetAddressRange')]"
+                }
+            }
+
+
+
         ]
     },
     "resources": [
         {
             "type": "Microsoft.Network/networkSecurityGroups",
-            "condition":"[not(parameters('deployBastion'))]",
+            "condition": "[not(parameters('deployBastion'))]",
             "apiVersion": "2018-08-01",
             "name": "[variables('defNsg')]",
             "location": "[resourceGroup().location]",
@@ -126,7 +147,7 @@
             "apiVersion": "2016-12-01",
             "name": "[variables('adVnetName')]",
             "location": "[resourceGroup().location]",
-            "condition":"[not(parameters('deployBastion'))]",
+            "condition": "[not(parameters('deployBastion'))]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('defNsg'))]"
             ],
@@ -158,7 +179,7 @@
         },
 
 
-        
+
 
         {
             "type": "Microsoft.Network/networkInterfaces",
@@ -242,211 +263,172 @@
                             "caching": "ReadOnly"
                         }
                     ]
-                },
-                "networkProfile": {
-                    "networkInterfaces": [
-                        {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('dcServerName'),'-nic'))]"
-                        }
-                    ]
-                },
-                "diagnosticsProfile": {
-                    "bootDiagnostics": {
-                        "enabled": "true",
-                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
-                    }
-                }
-            },
-            "resources": [
-                {
-                    "type": "extensions",
-                    "apiVersion": "2018-06-01",
-                    "name": "[variables('extensionName')]",
-                    "location": "[resourceGroup().location]",
-                    "dependsOn": [
-                        "[concat('Microsoft.Compute/virtualMachines/', variables('dcServerName'))]"
-                    ],
-                    "tags": {
-                        "displayName": "AzureDiagnostics"
-                    },
-                    "properties": {
-                        "publisher": "Microsoft.Azure.Diagnostics",
-                        "type": "IaaSDiagnostics",
-                        "typeHandlerVersion": "1.5",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "xmlCfg": "[base64(concat(variables('wadcfgxstart'), variables('wadmetricsresourceid'), variables('dcServerName'), variables('wadcfgxend')))]",
-                            "storageAccount": "[variables('storageAccountName')]"
-                        },
-                        "protectedSettings": {
-                            "storageAccountName": "[variables('storageAccountName')]",
-                            "storageAccountKey": "[listkeys(variables('accountid'), '2015-06-15').key1]",
-                            "storageAccountEndPoint": "https://core.windows.net"
-                        }
-                    }
-                },
-                {
-                    "type": "Microsoft.Compute/virtualMachines/extensions",
-                    "apiVersion": "2018-06-01",
-                    "name": "[concat(variables('dcServerName'),'/getADC')]",
-                    "location": "[resourceGroup().location]",
-                    "dependsOn": [
-                        "[variables('dcServername')]",
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]",
-                        "[variables('updateVNetDNS1')]"
-                    ],
-                    "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.9",
-                        "settings": {
-                            "fileUris": [
-                                "[concat(variables('adConnectUri'))]"
-                            ],
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file getADC.ps1')]"
-                        }
-                    }
-                }
-            ]
-        },
-        {
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "apiVersion": "2017-03-30",
-            "name": "[concat(variables('dcServerName'),'/InstallDomainController')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('dcServerName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('extensionName'))]"
-            ],
-            "properties": {
-                "publisher": "Microsoft.Powershell",
-                "type": "DSC",
-                "typeHandlerVersion": "2.19",
-                "autoUpgradeMinorVersion": "true",
-                "settings": {
-                    "modulesUrl": "[variables('DSCUri')]",
-                    "configurationFunction": "[variables('dscConfiguration')]",
-                    "properties": {
-                        "domainName": "[parameters('fqDomainName')]",
-                        "adminCreds": {
-                            "userName": "[parameters('adminUserName')]",
-                            "password": "PrivateSettingsRef:adminPassword"
-                        }
-                    }
-                },
-                "protectedSettings": {
-                    "items": {
-                        "adminPassword": "[parameters('adminPassword')]"
-                    }
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-02-01",
-            "name": "[variables('updateVNetDNS1')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('configureVnetDNSUri')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "virtualNetworkName": {
-                        "value": "[variables('adVnetName')]"
-                    },
-                    "virtualNetworkAddressRange": {
-                        "value": "[variables('vnetAddressRange')]"
-                    },
-                    "subnets": {
-                        "value": "[variables('subnets')]"
-                    },
-                    "dnsServerAddress": {
-                        "value": [
-                            "[variables('dnsServerPrivateIp')]"
+                    S
+                    "networkProfile": {
+                        "networkInterfaces": [
+                            {
+                                "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('dcServerName'),'-nic'))]"
+                            }
                         ]
+                    },
+                    "diagnosticsProfile": {
+                        "bootDiagnostics": {
+                            "enabled": "true",
+                            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
+                        }
                     }
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Network/publicIpAddresses",
-            "apiVersion": "2019-02-01",
-            "condition": "[parameters('deployBastion')]",
-            "name": "[variables('bastionPipName')]",
-            "location": "[variables('location')]",
-            "sku": {
-                "name": "Standard"
-            },
-            "properties": {
-                "publicIPAllocationMethod": "Static"
-            }
-        },
-        {
-            "type": "Microsoft.Network/bastionHosts",
-            "apiVersion": "2018-10-01",
-            "condition": "[parameters('deployBastion')]",
-            "name": "[variables('bastionHostName')]",
-            "location": "[variables('location')]",
-            "dependsOn": [
-                "[variables('bastionPipName')]",
-                "[variables('adVnetNameWithBastion')]"
-            ],
-            "properties": {
-                "ipConfigurations": [
+                },
+                "resources": [
                     {
-                        "name": "IpConf",
+                        "type": "extensions",
+                        "apiVersion": "2018-06-01",
+                        "name": "[variables('extensionName')]",
+                        "location": "[resourceGroup().location]",
+                        "dependsOn": [
+                            "[concat('Microsoft.Compute/virtualMachines/', variables('dcServerName'))]"
+                        ],
+                        "tags": {
+                            "displayName": "AzureDiagnostics"
+                        },
                         "properties": {
-                            "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('adVnetName'), variables('bastionSubnetName'))]"
+                            "publisher": "Microsoft.Azure.Diagnostics",
+                            "type": "IaaSDiagnostics",
+                            "typeHandlerVersion": "1.5",
+                            "autoUpgradeMinorVersion": true,
+                            "settings": {
+                                "xmlCfg": "[base64(concat(variables('wadcfgxstart'), variables('wadmetricsresourceid'), variables('dcServerName'), variables('wadcfgxend')))]",
+                                "storageAccount": "[variables('storageAccountName')]"
                             },
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', variables('bastionPipName'))]"
+                            "protectedSettings": {
+                                "storageAccountName": "[variables('storageAccountName')]",
+                                "storageAccountKey": "[listkeys(variables('accountid'), '2015-06-15').key1]",
+                                "storageAccountEndPoint": "https://core.windows.net"
+                            }
+                        }
+                    },
+                    {
+                        "type": "Microsoft.Compute/virtualMachines/extensions",
+                        "apiVersion": "2018-06-01",
+                        "name": "[concat(variables('dcServerName'),'/getADC')]",
+                        "location": "[resourceGroup().location]",
+                        "dependsOn": [
+                            "[variables('dcServername')]",
+                            "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]",
+                            "[variables('updateVNetDNS1')]"
+                        ],
+                        "properties": {
+                            "publisher": "Microsoft.Compute",
+                            "type": "CustomScriptExtension",
+                            "typeHandlerVersion": "1.9",
+                            "settings": {
+                                "fileUris": [
+                                    "[concat(variables('adConnectUri'))]"
+                                ],
+                                "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file getADC.ps1')]"
                             }
                         }
                     }
                 ]
-            }
-        },
-        {
-            "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2016-12-01",
-            "name": "[variables('adVnetNameWithBastion')]",
-            "condition":"[parameters('deployBastion')]",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "addressSpace": {
-                    "addressPrefixes": [
-                        "[variables('vnetAddressRange')]"
-                    ]
-                },
-                "subnets": [
-                    {
-                        "name": "[variables('adSubnetName')]",
+            },
+            {
+                "type": "Microsoft.Compute/virtualMachines/extensions",
+                "apiVersion": "2017-03-30",
+                "name": "[concat(variables('dcServerName'),'/InstallDomainController')]",
+                "location": "[resourceGroup().location]",
+                "dependsOn": [
+                    "[concat('Microsoft.Compute/virtualMachines/', variables('dcServerName'))]",
+                    "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('extensionName'))]"
+                ],
+                "properties": {
+                    "publisher": "Microsoft.Powershell",
+                    "type": "DSC",
+                    "typeHandlerVersion": "2.19",
+                    "autoUpgradeMinorVersion": "true",
+                    "settings": {
+                        "modulesUrl": "[variables('DSCUri')]",
+                        "configurationFunction": "[variables('dscConfiguration')]",
                         "properties": {
-                            "addressPrefix": "[variables('subnetAddressRange')]",
-                            "serviceEndpoints": [
-                                {
-                                    "service": "Microsoft.Storage"
-                                }
-                            ]
+                            "domainName": "[parameters('fqDomainName')]",
+                            "adminCreds": {
+                                "userName": "[parameters('adminUserName')]",
+                                "password": "PrivateSettingsRef:adminPassword"
+                            }
                         }
                     },
-                    {
-                        "name": "[variables('bastionSubnetName')]",
-                        "properties": {
-                            "addressPrefix": "[variables('bastionSubnetAddressRange')]"
+                    "protectedSettings": {
+                        "items": {
+                            "adminPassword": "[parameters('adminPassword')]"
                         }
                     }
-
-
-                ]
-
+                }
+            },
+            {
+                "type": "Microsoft.Resources/deployments",
+                "apiVersion": "2016-02-01",
+                "name": "[variables('updateVNetDNS1')]",
+                "condition": "[not(parameters('deployBastion'))]",
+                "dependsOn": [
+                    "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]"
+                ],
+                "properties": {
+                    "mode": "Incremental",
+                    "templateLink": {
+                        "uri": "[variables('configureVnetDNSUri')]",
+                        "contentVersion": "1.0.0.0"
+                    },
+                    "parameters": {
+                        "virtualNetworkName": {
+                            "value": "[variables('adVnetName')]"
+                        },
+                        "virtualNetworkAddressRange": {
+                            "value": "[variables('vnetAddressRange')]"
+                        },
+                        "subnets": {
+                            "value": "[variables('subnets')]"
+                        },
+                        "dnsServerAddress": {
+                            "value": [
+                                "[variables('dnsServerPrivateIp')]"
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                "type": "Microsoft.Resources/deployments",
+                "apiVersion": "2016-02-01",
+                "name": "[variables('updateVNetDNSWithBastion')]",
+                "condition": "[not(parameters('deployBastion'))]",
+                "dependsOn": [
+                    "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]"
+                ],
+                "properties": {
+                    "mode": "Incremental",
+                    "templateLink": {
+                        "uri": "[variables('configureVnetDNSUri')]",
+                        "contentVersion": "1.0.0.0"
+                    },
+                    "parameters": {
+                        "virtualNetworkName": {
+                            "value": "[variables('adVnetName')]"
+                        },
+                        "virtualNetworkAddressRange": {
+                            "value": "[variables('vnetAddressRange')]"
+                        },
+                        "subnets": {
+                            "value": "[variables('subnetsWithBastion')]"
+                        },
+                        "dnsServerAddress": {
+                            "value": [
+                                "[variables('dnsServerPrivateIp')]"
+                            ]
+                        }
+                    }
+                }
             }
-        }
+
+
+
 
 
 
