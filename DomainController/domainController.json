@@ -80,7 +80,7 @@
         "updateVNetDNSWithBastion": "UpdateVnetDNS-with-Bastion",
         "vnetAddressRange": "10.0.0.0/16",
         "subnetAddressRange": "10.0.0.0/24",
-        "bastionSubnetAddressRange": "10.0.0.0/27",
+        "bastionSubnetAddressRange": "10.0.1.0/27",
         "dnsServerPrivateIp": "10.0.0.4",
         "subnet-id": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('adVnetName')),'/subnets/', variables('adSubnetName'))]",
         "storageAccountName": "[concat('diagsa', uniquestring(resourceGroup().id))]",
