@@ -461,8 +461,9 @@
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-02-01",
+            "condition": "[equals(variables('deployVPNGateway'), 'Yes')]",
             "dependsOn": [
-                "[concat(variables('adVnetName'), '/', variables('gatewaySubnetName'))]"
+                "[variables('adVnetName')]"
             ],
             "name": "[variables('gatewayPIPName')]",
             "location": "[variables('location')]",
