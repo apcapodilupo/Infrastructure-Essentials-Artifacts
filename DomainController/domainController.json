@@ -348,7 +348,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2016-02-01",
             "name": "[variables('updateVNetDNS1')]",
-            "condition": "[not(parameters('deployBastion'))]",
+            "condition": "[equals(variables('deployBastion'), 'No')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]"
             ],
