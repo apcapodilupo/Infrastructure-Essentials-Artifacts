@@ -79,7 +79,6 @@
         "adVnetNameWithBastion": "[concat('ADVNET-with-Bastion-',resourceGroup().name)]",
         "adSubnetName": "[concat('ADStaticSubnet',resourceGroup().name)]",
         "azureBastionSubnetName": "AzureBastionSubnet",
-        "gatewaySubnetName": "GatewaySubnet",
         "extensionName": "Microsoft.Insights.VMDiagnosticsSettings",
         "deployBastion": "[if(parameters('deployBastion'), 'Yes', 'No')]",
         "deployVPNGateway": "[if(parameters('deployVPNGateway'), 'Yes', 'No')]",
@@ -90,7 +89,6 @@
         "vnetAddressRange": "10.0.0.0/16",
         "subnetAddressRange": "10.0.0.0/24",
         "bastionSubnetAddressRange": "10.0.1.0/27",
-        "gatewaySubnetAddressRange": "10.0.2.0/24",
         "dnsServerPrivateIp": "10.0.0.4",
         "subnet-id": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('adVnetName')),'/subnets/', variables('adSubnetName'))]",
         "storageAccountName": "[concat('diagsa', uniquestring(resourceGroup().id))]",
@@ -104,7 +102,6 @@
         "wadcfgxstart": "[concat(variables('wadlogs'), variables('wadperfcounters1'), variables('wadperfcounters2'), '<Metrics resourceId=\"')]",
         "wadmetricsresourceid": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name , '/providers/', 'Microsoft.Compute/virtualMachines/')]",
         "wadcfgxend": "\"><MetricAggregation scheduledTransferPeriod=\"PT1H\"/><MetricAggregation scheduledTransferPeriod=\"PT1M\"/></Metrics></DiagnosticMonitorConfiguration></WadCfg>",
-        "gatewayPIPName": "VPNGateway-PIP",
         "configureVnetDNSUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/vnet-with-dns-server.json",
         "DSCUri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/builddc.zip?raw=true",
         "dscConfiguration": "dsc_createdomain.ps1\\CreateADPDC",
@@ -372,7 +369,11 @@
                         "value": [
                             "[variables('dnsServerPrivateIp')]"
                         ]
+                    },
+                    "deployVPNGateway": {
+                        "value": "[variables('deployVPNGateway')]"
                     }
+
                 }
             }
         },
@@ -404,7 +405,11 @@
                         "value": [
                             "[variables('dnsServerPrivateIp')]"
                         ]
+                    },
+                    "deployVPNGateway": {
+                        "value": "[variables('deployVPNGateway')]"
                     }
+
                 }
             }
         },
@@ -447,33 +452,9 @@
                     }
                 ]
             }
-        },
-        {
-            "type": "Microsoft.Network/virtualNetworks/subnets",
-            "apiVersion": "2019-04-01",
-            "condition": "[equals(variables('deployVPNGateway'), 'Yes')]",
-            "dependsOn": [
-                "[variables('adVnetName')]"
-            ],
-            "name": "[concat(variables('adVnetName'), '/', variables('gatewaySubnetName'))]",
-            "location": "[variables('location')]",
-            "properties": {
-                "addressPrefix": "[variables('gatewaySubnetAddressRange')]"
-            }
-        },
-        {
-            "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2019-02-01",
-            "condition": "[equals(variables('deployVPNGateway'), 'Yes')]",
-            "dependsOn": [
-                "[variables('adVnetName')]"
-            ],
-            "name": "[variables('gatewayPIPName')]",
-            "location": "[variables('location')]",
-            "properties": {
-                "publicIPAllocationMethod": "Dynamic"
-            }
         }
+        
+        
 
     ]
 }

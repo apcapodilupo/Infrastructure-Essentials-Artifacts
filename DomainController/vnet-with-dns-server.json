@@ -25,13 +25,25 @@
             "metadata": {
                 "description": "The DNS address(es) of the DNS Server(s) used by the VNET"
             }
+        },
+        "deployVPNGateway": {
+            "type": "string"
         }
-        
+
+
     },
-    "variables": {},
+    "variables": {
+        "location": "[resourceGroup().location]",
+        "gatewaySubnetName": "GatewaySubnet",
+        "gatewaySubnetAddressRange": "10.0.2.0/24",
+        "gatewayPIPName": "VPNGateway-PIP"
+
+
+    },
     "resources": [
         {
             "name": "[parameters('virtualNetworkName')]",
+            "condition": "[equals(parameters('deployVPNGateway'), 'No')]",
             "type": "Microsoft.Network/virtualNetworks",
             "location": "[resourceGroup().location]",
             "apiVersion": "2015-06-15",
@@ -46,8 +58,29 @@
                 },
                 "subnets": "[parameters('subnets')]"
             }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2019-04-01",
+            "condition": "[equals(parameters('deployVPNGateway'), 'Yes')]",
+            "dependsOn": [
+                "[parameters('virtualNetworkName')]"
+            ],
+            "name": "[concat(parameters('virtualNetworkName'), '/', variables('gatewaySubnetName'))]",
+            "location": "[variables('location')]",
+            "properties": {
+                "addressPrefix": "[variables('gatewaySubnetAddressRange')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2019-02-01",
+            "condition": "[equals(parameters('deployVPNGateway'), 'Yes')]",
+            "name": "[variables('gatewayPIPName')]",
+            "location": "[variables('location')]",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic"
+            }
         }
-        
-        
     ]
 }
