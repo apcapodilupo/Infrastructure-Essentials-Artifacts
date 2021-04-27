@@ -66,7 +66,7 @@
         },
         "deployVPNGateway": {
             "type": "bool",
-            "allowedValues":[
+            "allowedValues": [
                 true,
                 false
             ]
@@ -451,6 +451,10 @@
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2019-04-01",
+            "dependsOn": [
+                "[variables('adVnetName')]"
+            ],
+
             "condition": "[equals(variables('deployVPNGateway'), 'Yes')]",
             "name": "[concat(variables('adVnetName'), '/', variables('gatewaySubnetName'))]",
             "location": "[variables('location')]",
