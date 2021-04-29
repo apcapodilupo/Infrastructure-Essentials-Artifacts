@@ -80,7 +80,12 @@
         "extensionName": "Microsoft.Insights.VMDiagnosticsSettings",
         "deployBastion": "[if(parameters('deployBastion'), 'Yes', 'No')]",
         "deployVPNGateway": "[if(parameters('deployVPNGateway'), 'Yes', 'No')]",
+        "gatewayName": "IA-VPNGateway",
         "gatewayPIPName": "VPNGateway-PIP",
+        "gatewaySubnetName": "GatewaySubnet",
+        "vpnGatewayGeneration": "Generation2",
+        "gatewayType": "Vpn",
+        "vpnType": "PolicyBased",
         "updateVNetDNS1": "updateVNetDNS",
         "vnetAddressRange": "10.0.0.0/16",
         "subnetAddressRange": "10.0.0.0/24",
@@ -373,6 +378,40 @@
             "location": "[variables('location')]",
             "properties": {
                 "publicIPAllocationMethod": "Dynamic"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworkGateways",
+            "apiVersion": "2020-08-01",
+            "name": "[variables('gatewayName')]",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[variables('gatewayPIPName')]",
+                "[variables('updateVNetDNS1')]"
+            ],
+            "tags": {},
+            "properties": {
+                "gatewayType": "[variables('gatewayType')]",
+                "ipConfigurations": [
+                    {
+                        "name": "default",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('adVnetName'), variables('gatewaySubnetName'))]"
+                            },
+                            "publicIpAddress": {
+                                "id": "[resourceId('TC-Infra-Test-json', 'Microsoft.Network/publicIPAddresses', variables('gatewayPIPName'))]"
+                            }
+                        }
+                    }
+                ],
+                "vpnType": "[variables('vpnType')]",
+                "vpnGatewayGeneration": "[variables('vpnGatewayGeneration')]",
+                "sku": {
+                    "name": "Basic",
+                    "tier": "Basic"
+                }
             }
         }
 
