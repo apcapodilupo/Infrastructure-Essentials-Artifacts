@@ -76,19 +76,14 @@
         "dcServername": "azuredc",
         "defNsg": "default-nsg",
         "adVnetName": "[concat('ADVNET',resourceGroup().name)]",
-        "adVnetNameWithBastion": "[concat('ADVNET-with-Bastion-',resourceGroup().name)]",
-        "gatewaySubnetName": "GatewaySubnet",
         "adSubnetName": "[concat('ADStaticSubnet',resourceGroup().name)]",
-        "azureBastionSubnetName": "AzureBastionSubnet",
         "extensionName": "Microsoft.Insights.VMDiagnosticsSettings",
         "deployBastion": "[if(parameters('deployBastion'), 'Yes', 'No')]",
         "deployVPNGateway": "[if(parameters('deployVPNGateway'), 'Yes', 'No')]",
+        "gatewayPIPName": "VPNGateway-PIP",
         "updateVNetDNS1": "updateVNetDNS",
-        "updateVNetDNSWithBastion": "UpdateVnetDNS-with-Bastion",
         "vnetAddressRange": "10.0.0.0/16",
         "subnetAddressRange": "10.0.0.0/24",
-        "bastionSubnetAddressRange": "10.0.1.0/27",
-        "gatewaySubnetAddressRange": "10.0.2.0/24",
         "dnsServerPrivateIp": "10.0.0.4",
         "subnet-id": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('adVnetName')),'/subnets/', variables('adSubnetName'))]",
         "storageAccountName": "[concat('diagsa', uniquestring(resourceGroup().id))]",
@@ -106,35 +101,7 @@
         "DSCUri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/builddc.zip?raw=true",
         "dscConfiguration": "dsc_createdomain.ps1\\CreateADPDC",
         "adConnectUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getADC.ps1",
-        "location": "[resourceGroup().location]",
-        "subnets": [
-            {
-                "name": "[variables('adSubnetName')]",
-                "properties": {
-                    "addressPrefix": "[variables('subnetAddressRange')]",
-                    "networksecuritygroup": {
-                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
-                    }
-                }
-            }
-        ],
-        "subnetsWithBastion": [
-            {
-                "name": "[variables('adSubnetName')]",
-                "properties": {
-                    "addressPrefix": "[variables('subnetAddressRange')]",
-                    "networksecuritygroup": {
-                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
-                    }
-                }
-            },
-            {
-                "name": "[variables('azureBastionSubnetName')]",
-                "properties": {
-                    "addressPrefix": "[variables('bastionSubnetAddressRange')]"
-                }
-            }
-        ]
+        "location": "[resourceGroup().location]"
     },
     "resources": [
         {
@@ -306,6 +273,8 @@
                 }
             ]
         },
+
+
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2020-12-01",
@@ -335,6 +304,27 @@
                     "items": {
                         "adminPassword": "[parameters('adminPassword')]"
                     }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2018-06-01",
+            "name": "[concat(variables('dcServername'),'/getADC')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', variables('dcServername'))]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.9",
+                "settings": {
+                    "fileUris": [
+                        "[variables('adConnectUri')]"
+                    ],
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file getADC.ps1')]"
                 }
             }
         },
@@ -372,7 +362,20 @@
                 }
             }
         },
-        
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "condition": "[equals(parameters('deployVPNGateway'), 'Yes')]",
+            "apiVersion": "2019-02-01",
+            "dependsOn": [
+                "[variables('updateVNetDNS1')]"
+            ],
+            "name": "[variables('gatewayPIPName')]",
+            "location": "[variables('location')]",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic"
+            }
+        }
+
 
 
 
