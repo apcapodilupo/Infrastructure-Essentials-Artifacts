@@ -401,7 +401,7 @@
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('adVnetName'), variables('gatewaySubnetName'))]"
                             },
                             "publicIpAddress": {
-                                "id": "[resourceId('TC-Infra-Test-json', 'Microsoft.Network/publicIPAddresses', variables('gatewayPIPName'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPIPName'))]"
                             }
                         }
                     }
