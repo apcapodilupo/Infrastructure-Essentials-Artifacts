@@ -128,7 +128,8 @@
             "location": "[variables('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/publicIpAddresses', variables('bastionPipName'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+                "[concat(parameters('virtualNetworkName'), '/', variables('azureBastionSubnetName'))]"
             ],
             "properties": {
                 "ipConfigurations": [
