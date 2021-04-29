@@ -77,6 +77,7 @@
         "defNsg": "default-nsg",
         "adVnetName": "[concat('ADVNET',resourceGroup().name)]",
         "adVnetNameWithBastion": "[concat('ADVNET-with-Bastion-',resourceGroup().name)]",
+        "gatewaySubnetName": "GatewaySubnet",
         "adSubnetName": "[concat('ADStaticSubnet',resourceGroup().name)]",
         "azureBastionSubnetName": "AzureBastionSubnet",
         "extensionName": "Microsoft.Insights.VMDiagnosticsSettings",
@@ -87,6 +88,7 @@
         "vnetAddressRange": "10.0.0.0/16",
         "subnetAddressRange": "10.0.0.0/24",
         "bastionSubnetAddressRange": "10.0.1.0/27",
+        "gatewaySubnetAddressRange": "10.0.2.0/24",
         "dnsServerPrivateIp": "10.0.0.4",
         "subnet-id": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('adVnetName')),'/subnets/', variables('adSubnetName'))]",
         "storageAccountName": "[concat('diagsa', uniquestring(resourceGroup().id))]",
@@ -132,10 +134,32 @@
                     "addressPrefix": "[variables('bastionSubnetAddressRange')]"
                 }
             }
-
-
+        ],
+        "subnetsWithBastionAndGateway": [
+            {
+                "name": "[variables('adSubnetName')]",
+                "properties": {
+                    "addressPrefix": "[variables('subnetAddressRange')]",
+                    "networksecuritygroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
+                    }
+                }
+            },
+            {
+                "name": "[variables('azureBastionSubnetName')]",
+                "properties": {
+                    "addressPrefix": "[variables('bastionSubnetAddressRange')]"
+                }
+            },
+            {
+                "name": "[variables('gatewaySubnetName')]",
+                "properties": {
+                    "addressPrefix": "[variables('gatewaySubnetAddressRange')]"
+                }
+            }
 
         ]
+
     },
     "resources": [
         {
@@ -370,7 +394,11 @@
                     },
                     "deployVPNGateway": {
                         "value": "[variables('deployVPNGateway')]"
+                    },
+                    "deployBastion": {
+                        "value": "[variables('deployBastion')]"
                     }
+
 
                 }
             }
