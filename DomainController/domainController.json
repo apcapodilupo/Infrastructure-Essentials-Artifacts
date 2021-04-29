@@ -384,7 +384,7 @@
             "type": "Microsoft.Network/virtualNetworkGateways",
             "apiVersion": "2020-08-01",
             "name": "[variables('gatewayName')]",
-            "condition": "[equals(parameters('deployVPNGateway'), 'Yes')]",
+            "condition": "[equals(variables('deployVPNGateway'), 'Yes')]",
             "location": "[variables('location')]",
             "dependsOn": [
                 "[variables('gatewayPIPName')]"
