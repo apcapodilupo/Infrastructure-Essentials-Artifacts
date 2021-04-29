@@ -75,7 +75,8 @@
             "apiVersion": "2019-04-01",
             "condition": "[equals(parameters('deployBastion'), 'Yes')]",
             "dependsOn": [
-                "[parameters('virtualNetworkName')]"
+                "[parameters('virtualNetworkName')]",
+                "[variables('gatewaySubnetName')]"
             ],
             "name": "[concat(parameters('virtualNetworkName'), '/', variables('azureBastionSubnetName'))]",
             "location": "[variables('location')]",
