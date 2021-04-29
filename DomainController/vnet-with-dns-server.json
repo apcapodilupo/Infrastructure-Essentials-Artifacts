@@ -129,7 +129,7 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Network/publicIpAddresses', variables('bastionPipName'))]",
                 "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
-                "[concat(parameters('virtualNetworkName'), '/', variables('azureBastionSubnetName'))]"
+                "[variables('azureBastionSubnetName')]"
             ],
             "properties": {
                 "ipConfigurations": [
