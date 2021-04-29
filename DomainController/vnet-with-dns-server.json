@@ -14,12 +14,6 @@
                 "description": "The address range of the VNET in CIDR format"
             }
         },
-        "subnets": {
-            "type": "array",
-            "metadata": {
-                "description": "The subnet definition for the VNET"
-            }
-        },
         "DNSServerAddress": {
             "type": "array",
             "metadata": {
@@ -37,11 +31,12 @@
     "variables": {
         "location": "[resourceGroup().location]",
         "gatewaySubnetName": "GatewaySubnet",
+        "azureBastionSubnetName": "AzureBastionSubnet",
+        "bastionSubnetAddressRange": "10.0.1.0/27",
         "gatewaySubnetAddressRange": "10.0.2.0/24",
         "gatewayPIPName": "VPNGateway-PIP",
         "bastionPipName": "bastionHost-pip",
-        "bastionHostName": "AzureBastionHost",
-        "azureBastionSubnetName": "AzureBastionSubnet"
+        "bastionHostName": "AzureBastionHost"
 
     },
     "resources": [
@@ -59,8 +54,7 @@
                 },
                 "dhcpOptions": {
                     "dnsServers": "[parameters('DNSServerAddress')]"
-                },
-                "subnets": "[parameters('subnets')]"
+                }
             }
         },
         {
@@ -76,6 +70,33 @@
                 "addressPrefix": "[variables('gatewaySubnetAddressRange')]"
             }
         },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2019-04-01",
+            "condition": "[equals(parameters('deployVPNGateway'), 'Yes')]",
+            "dependsOn": [
+                "[parameters('virtualNetworkName')]"
+            ],
+            "name": "[concat(parameters('virtualNetworkName'), '/', variables('gatewaySubnetName'))]",
+            "location": "[variables('location')]",
+            "properties": {
+                "addressPrefix": "[variables('gatewaySubnetAddressRange')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2019-04-01",
+            "condition": "[equals(parameters('deployBastion'), 'Yes')]",
+            "dependsOn": [
+                "[parameters('virtualNetworkName')]"
+            ],
+            "name": "[concat(parameters('virtualNetworkName'), '/', variables('azureBastionSubnetName'))]",
+            "location": "[variables('location')]",
+            "properties": {
+                "addressPrefix": "[variables('bastionSubnetAddressRange')]"
+            }
+        },
+
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-02-01",

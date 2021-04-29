@@ -134,32 +134,7 @@
                     "addressPrefix": "[variables('bastionSubnetAddressRange')]"
                 }
             }
-        ],
-        "subnetsWithBastionAndGateway": [
-            {
-                "name": "[variables('adSubnetName')]",
-                "properties": {
-                    "addressPrefix": "[variables('subnetAddressRange')]",
-                    "networksecuritygroup": {
-                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
-                    }
-                }
-            },
-            {
-                "name": "[variables('azureBastionSubnetName')]",
-                "properties": {
-                    "addressPrefix": "[variables('bastionSubnetAddressRange')]"
-                }
-            },
-            {
-                "name": "[variables('gatewaySubnetName')]",
-                "properties": {
-                    "addressPrefix": "[variables('gatewaySubnetAddressRange')]"
-                }
-            }
-
         ]
-
     },
     "resources": [
         {
@@ -367,7 +342,6 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2016-02-01",
             "name": "[variables('updateVNetDNS1')]",
-            "condition": "[equals(variables('deployBastion'), 'No')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]"
             ],
@@ -384,9 +358,6 @@
                     "virtualNetworkAddressRange": {
                         "value": "[variables('vnetAddressRange')]"
                     },
-                    "subnets": {
-                        "value": "[variables('subnets')]"
-                    },
                     "dnsServerAddress": {
                         "value": [
                             "[variables('dnsServerPrivateIp')]"
@@ -398,51 +369,10 @@
                     "deployBastion": {
                         "value": "[variables('deployBastion')]"
                     }
-
-
                 }
             }
         },
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-02-01",
-            "name": "[variables('updateVNetDNSWithBastion')]",
-            "condition": "[equals(variables('deployBastion'), 'Yes')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('configureVnetDNSUri')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "virtualNetworkName": {
-                        "value": "[variables('adVnetName')]"
-                    },
-                    "virtualNetworkAddressRange": {
-                        "value": "[variables('vnetAddressRange')]"
-                    },
-                    "subnets": {
-                        "value": "[variables('subnetsWithBastion')]"
-                    },
-                    "dnsServerAddress": {
-                        "value": [
-                            "[variables('dnsServerPrivateIp')]"
-                        ]
-                    },
-                    "deployVPNGateway": {
-                        "value": "[variables('deployVPNGateway')]"
-                    },
-                    "deployBastion": {
-                        "value": "[variables('deployBastion')]"
-                    }
-
-
-                }
-            }
-        }
+        
 
 
 
