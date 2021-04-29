@@ -82,8 +82,6 @@
         "extensionName": "Microsoft.Insights.VMDiagnosticsSettings",
         "deployBastion": "[if(parameters('deployBastion'), 'Yes', 'No')]",
         "deployVPNGateway": "[if(parameters('deployVPNGateway'), 'Yes', 'No')]",
-        "bastionPipName": "bastionHost-pip",
-        "bastionHostName": "AzureBastionHost",
         "updateVNetDNS1": "updateVNetDNS",
         "updateVNetDNSWithBastion": "UpdateVnetDNS-with-Bastion",
         "vnetAddressRange": "10.0.0.0/16",
@@ -408,53 +406,19 @@
                     },
                     "deployVPNGateway": {
                         "value": "[variables('deployVPNGateway')]"
+                    },
+                    "deployBastion": {
+                        "value": "[variables('deployBastion')]"
                     }
+
 
                 }
             }
-        },
-        {
-            "type": "Microsoft.Network/publicIpAddresses",
-            "apiVersion": "2019-02-01",
-            "condition": "[equals(variables('deployBastion'), 'Yes')]",
-            "name": "[variables('bastionPipName')]",
-            "location": "[variables('location')]",
-            "sku": {
-                "name": "Standard"
-            },
-            "properties": {
-                "publicIPAllocationMethod": "Static"
-            }
-        },
-        {
-            "type": "Microsoft.Network/bastionHosts",
-            "apiVersion": "2018-10-01",
-            "condition": "[equals(variables('deployBastion'), 'Yes')]",
-            "name": "[variables('bastionHostName')]",
-            "location": "[variables('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIpAddresses', variables('bastionPipName'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('adVnetName'))]",
-                "[variables('updateVNetDNSWithBastion')]"
-            ],
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "IpConf",
-                        "properties": {
-                            "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('adVnetName'), variables('azureBastionSubnetName'))]"
-                            },
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', variables('bastionPipName'))]"
-                            }
-                        }
-                    }
-                ]
-            }
         }
-        
-        
+
+
+
+
 
     ]
 }

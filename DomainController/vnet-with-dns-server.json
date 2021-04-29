@@ -28,16 +28,20 @@
         },
         "deployVPNGateway": {
             "type": "string"
+        },
+        "deployBastion": {
+            "type": "string"
         }
-
-
     },
+
     "variables": {
         "location": "[resourceGroup().location]",
         "gatewaySubnetName": "GatewaySubnet",
         "gatewaySubnetAddressRange": "10.0.2.0/24",
-        "gatewayPIPName": "VPNGateway-PIP"
-
+        "gatewayPIPName": "VPNGateway-PIP",
+        "bastionPipName": "bastionHost-pip",
+        "bastionHostName": "AzureBastionHost",
+        "azureBastionSubnetName": "AzureBastionSubnet"
 
     },
     "resources": [
@@ -80,6 +84,45 @@
             "location": "[variables('location')]",
             "properties": {
                 "publicIPAllocationMethod": "Dynamic"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2019-02-01",
+            "condition": "[equals(parameters('deployBastion'), 'Yes')]",
+            "name": "[variables('bastionPipName')]",
+            "location": "[variables('location')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "type": "Microsoft.Network/bastionHosts",
+            "apiVersion": "2018-10-01",
+            "condition": "[equals(parameters('deployBastion'), 'Yes')]",
+            "name": "[variables('bastionHostName')]",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIpAddresses', variables('bastionPipName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "IpConf",
+                        "properties": {
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('azureBastionSubnetName'))]"
+                            },
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', variables('bastionPipName'))]"
+                            }
+                        }
+                    }
+                ]
             }
         }
     ]
