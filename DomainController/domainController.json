@@ -387,8 +387,7 @@
             "condition": "[equals(parameters('deployVPNGateway'), 'Yes')]",
             "location": "[variables('location')]",
             "dependsOn": [
-                "[variables('gatewayPIPName')]",
-                "[variables('updateVNetDNS1')]"
+                "[variables('gatewayPIPName')]"
             ],
             "tags": {},
             "properties": {
