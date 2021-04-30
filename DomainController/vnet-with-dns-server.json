@@ -42,7 +42,6 @@
     "resources": [
         {
             "name": "[parameters('virtualNetworkName')]",
-            "condition": "[equals(parameters('deployVPNGateway'), 'No')]",
             "type": "Microsoft.Network/virtualNetworks",
             "location": "[resourceGroup().location]",
             "apiVersion": "2015-06-15",

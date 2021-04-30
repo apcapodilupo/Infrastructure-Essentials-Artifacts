@@ -83,7 +83,7 @@
         "gatewayName": "IA-VPNGateway",
         "gatewayPIPName": "VPNGateway-PIP",
         "gatewaySubnetName": "GatewaySubnet",
-        "vpnGatewayGeneration": "Generation2",
+        "vpnGatewayGeneration": "None",
         "gatewayType": "Vpn",
         "vpnType": "PolicyBased",
         "updateVNetDNS1": "updateVNetDNS",
@@ -278,7 +278,6 @@
                 }
             ]
         },
-
 
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
