@@ -106,7 +106,19 @@
         "DSCUri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/builddc.zip?raw=true",
         "dscConfiguration": "dsc_createdomain.ps1\\CreateADPDC",
         "adConnectUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getADC.ps1",
-        "location": "[resourceGroup().location]"
+        "location": "[resourceGroup().location]",
+        "subnets": [
+            {
+                "name": "[variables('adSubnetName')]",
+                "properties": {
+                    "addressPrefix": "[variables('subnetAddressRange')]",
+                    "networksecuritygroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
+                    }
+                }
+            }
+        ]
+
     },
     "resources": [
         {
@@ -116,7 +128,6 @@
             "location": "[resourceGroup().location]",
             "properties": {}
         },
-
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2016-12-01",
@@ -358,6 +369,12 @@
                             "[variables('dnsServerPrivateIp')]"
                         ]
                     },
+                    "subnets": {
+                        "value": [
+                            "[variables('subnets')]"
+                        ]
+                    },
+
                     "deployVPNGateway": {
                         "value": "[variables('deployVPNGateway')]"
                     },
