@@ -61,7 +61,8 @@
                 },
                 "dhcpOptions": {
                     "dnsServers": "[parameters('DNSServerAddress')]"
-                }
+                },
+                "subnets": "[parameters('subnets')]"
             }
         },
         {
