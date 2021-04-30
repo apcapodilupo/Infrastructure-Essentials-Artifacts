@@ -131,6 +131,10 @@
                         "[variables('vnetAddressRange')]"
                     ]
                 },
+                "dhcpOptions": {
+                    "dnsServers": "[variables('dnsServerPrivateIp')]"
+                },
+
                 "subnets": [
                     {
                         "name": "[variables('adSubnetName')]",
@@ -348,14 +352,6 @@
                 "parameters": {
                     "virtualNetworkName": {
                         "value": "[variables('adVnetName')]"
-                    },
-                    "virtualNetworkAddressRange": {
-                        "value": "[variables('vnetAddressRange')]"
-                    },
-                    "dnsServerAddress": {
-                        "value": [
-                            "[variables('dnsServerPrivateIp')]"
-                        ]
                     },
                     "deployVPNGateway": {
                         "value": "[variables('deployVPNGateway')]"

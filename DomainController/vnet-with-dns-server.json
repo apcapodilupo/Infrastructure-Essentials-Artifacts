@@ -3,22 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "virtualNetworkName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the Virtual Network"
-            }
-        },
-        "virtualNetworkAddressRange": {
-            "type": "string",
-            "metadata": {
-                "description": "The address range of the VNET in CIDR format"
-            }
-        },
-        "DNSServerAddress": {
-            "type": "array",
-            "metadata": {
-                "description": "The DNS address(es) of the DNS Server(s) used by the VNET"
-            }
+            "type": "string"
         },
         "deployVPNGateway": {
             "type": "string"
@@ -40,22 +25,7 @@
 
     },
     "resources": [
-        {
-            "name": "[parameters('virtualNetworkName')]",
-            "type": "Microsoft.Network/virtualNetworks",
-            "location": "[resourceGroup().location]",
-            "apiVersion": "2015-06-15",
-            "properties": {
-                "addressSpace": {
-                    "addressPrefixes": [
-                        "[parameters('virtualNetworkAddressRange')]"
-                    ]
-                },
-                "dhcpOptions": {
-                    "dnsServers": "[parameters('DNSServerAddress')]"
-                }
-            }
-        },
+
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2019-04-01",
