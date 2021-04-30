@@ -370,9 +370,7 @@
                         ]
                     },
                     "subnets": {
-                        "value": [
-                            "[variables('subnets')]"
-                        ]
+                        "value": "[variables('subnets')]"
                     },
 
                     "deployVPNGateway": {
