@@ -296,7 +296,7 @@
 {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2018-06-01",
-            "name": "[variables('dcServerName')]",
+            "name": "[concat(variables('dcServerName'), '-noDataDisk')]",
             "condition": "[equals(variables('additionalDataDisk'), 'No')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
