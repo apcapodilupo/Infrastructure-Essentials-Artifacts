@@ -131,10 +131,6 @@
                         "[variables('vnetAddressRange')]"
                     ]
                 },
-                "dhcpOptions": {
-                    "dnsServers": "[variables('dnsServerPrivateIp')]"
-                },
-
                 "subnets": [
                     {
                         "name": "[variables('adSubnetName')]",
@@ -283,6 +279,7 @@
             ]
         },
 
+
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2020-12-01",
@@ -352,6 +349,14 @@
                 "parameters": {
                     "virtualNetworkName": {
                         "value": "[variables('adVnetName')]"
+                    },
+                    "virtualNetworkAddressRange": {
+                        "value": "[variables('vnetAddressRange')]"
+                    },
+                    "dnsServerAddress": {
+                        "value": [
+                            "[variables('dnsServerPrivateIp')]"
+                        ]
                     },
                     "deployVPNGateway": {
                         "value": "[variables('deployVPNGateway')]"
