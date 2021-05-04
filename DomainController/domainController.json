@@ -127,7 +127,7 @@
                 "lun": 0,
                 "createOption": "Empty",
                 "caching": "None"
-            },
+            }
 
         ],
         "dataDisks": [
