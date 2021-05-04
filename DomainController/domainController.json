@@ -74,7 +74,6 @@
         }
     },
     "variables": {
-        "additionalDataDisk": "[ if(equals(parameters('addtlDataDiskSize'), 'None'), 'No', 'Yes') ]",
         "dcServername": "azuredc",
         "defNsg": "default-nsg",
         "adVnetName": "[concat('ADVNET',resourceGroup().name)]",
@@ -228,7 +227,6 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2018-06-01",
-            "condition": "[equals(variables('additionalDataDisk'), 'Yes')]",
             "name": "[variables('dcServerName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
@@ -258,7 +256,7 @@
                             "storageAccountType": "Premium_LRS"
                         }
                     },
-                    "dataDisks": "[if(equals(parameters('addtlDataDiskSize'), 'None'), variables('noAddtlDataDisks'), variables('dataDisks'))]"
+                    "dataDisks": "[variables('setDataDisks')]"
                 },
                 "networkProfile": {
                     "networkInterfaces": [
