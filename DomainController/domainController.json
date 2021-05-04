@@ -120,7 +120,16 @@
                 }
             }
         ],
-        "noDataDisks": [],
+        "noAddtlDataDisks": [
+            {
+                "name": "[concat(variables('dcServerName'),'-dcDataDrive')]",
+                "diskSizeGB": "[variables('dcDataDisk')]",
+                "lun": 0,
+                "createOption": "Empty",
+                "caching": "None"
+            },
+
+        ],
         "dataDisks": [
             {
                 "name": "[concat(variables('dcServerName'),'-dcDataDrive')]",
@@ -137,7 +146,7 @@
                 "caching": "ReadOnly"
             }
         ],
-        "setDataDisks": "[if(equals(parameters('addtlDataDiskSize'), 'None'), variables('noDataDisks'), variables('dataDisks'))]"
+        "setDataDisks": "[if(equals(parameters('addtlDataDiskSize'), 'None'), variables('noAddtlDataDisks'), variables('dataDisks'))]"
 
     },
     "resources": [
