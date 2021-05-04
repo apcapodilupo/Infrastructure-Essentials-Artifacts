@@ -119,7 +119,25 @@
                     }
                 }
             }
-        ]
+        ],
+        "noDataDisks": [],
+        "dataDisks": [
+            {
+                "name": "[concat(variables('dcServerName'),'-dcDataDrive')]",
+                "diskSizeGB": "[variables('dcDataDisk')]",
+                "lun": 0,
+                "createOption": "Empty",
+                "caching": "None"
+            },
+            {
+                "name": "[concat(variables('dcServerName'),'-addtlDataDrive')]",
+                "diskSizeGB": "[parameters('addtlDataDiskSize')]",
+                "lun": 1,
+                "createOption": "Empty",
+                "caching": "ReadOnly"
+            }
+        ],
+        "setDataDisks": "[if(equals(parameters('addtlDataDiskSize'), 'None'), variables('noDataDisks'), variables('dataDisks'))]"
 
     },
     "resources": [
@@ -231,22 +249,7 @@
                             "storageAccountType": "Premium_LRS"
                         }
                     },
-                    "dataDisks": [
-                        {
-                            "name": "[concat(variables('dcServerName'),'-dcDataDrive')]",
-                            "diskSizeGB": "[variables('dcDataDisk')]",
-                            "lun": 0,
-                            "createOption": "Empty",
-                            "caching": "None"
-                        },
-                        {
-                            "name": "[concat(variables('dcServerName'),'-addtlDataDrive')]",
-                            "diskSizeGB": "[parameters('addtlDataDiskSize')]",
-                            "lun": 1,
-                            "createOption": "Empty",
-                            "caching": "ReadOnly"
-                        }
-                    ]
+                    "dataDisks": "[variables('setDataDisks')]"
                 },
                 "networkProfile": {
                     "networkInterfaces": [
