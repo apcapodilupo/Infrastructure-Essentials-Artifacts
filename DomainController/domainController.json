@@ -145,7 +145,7 @@
                 "caching": "ReadOnly"
             }
         ],
-        "setDataDisks": "[if(equals(parameters('addtlDataDiskSize'), 'None'), variables('noAddtlDataDisks'), variables('dataDisks'))]""[if(equals(parameters('addtlDataDiskSize'), 'None'), variables('noAddtlDataDisks'), variables('dataDisks'))]"
+        "setDataDisks": "[if(equals(parameters('addtlDataDiskSize'), 'None'), variables('noAddtlDataDisks'), variables('dataDisks'))]"
 
     },
     "resources": [
