@@ -321,6 +321,7 @@
                     "configurationFunction": "[variables('dscConfiguration')]",
                     "properties": {
                         "domainName": "[parameters('fqDomainName')]",
+                        "addtlDataDiskSize": "[parameters('addtlDataDiskSize')]",
                         "adminCreds": {
                             "userName": "[parameters('adminUserName')]",
                             "password": "PrivateSettingsRef:adminPassword"
