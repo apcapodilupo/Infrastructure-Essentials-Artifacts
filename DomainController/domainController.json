@@ -115,7 +115,13 @@
                     "addressPrefix": "[variables('subnetAddressRange')]",
                     "networksecuritygroup": {
                         "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-nsg')]"
-                    }
+                    },
+                    "serviceEndpoints": [
+                        {
+                            "service": "Microsoft.Storage"
+                        }
+                    ]
+
                 }
             }
         ],
