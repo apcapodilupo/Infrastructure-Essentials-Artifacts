@@ -169,8 +169,7 @@
             "name": "[concat(variables('virtualMachineName'),'/RSAT-Custom-Script')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]",
-                "[concat('Microsoft.Compute/virtualMachines/extensions/', variables('virtualMachineName'), '/joindomain')]"
+                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]"
 
             ],
             "properties": {
