@@ -106,7 +106,7 @@
         "gatewayType": "Vpn",
         "vpnType": "PolicyBased",
         "updateVNetDNS1": "updateVNetDNS",
-        "deployManagementServer": "deployManagementServer",    
+        "deployManagementServer": "deployManagementServer",
         "vnetAddressRange": "10.0.0.0/16",
         "subnetAddressRange": "10.0.0.0/24",
         "dnsServerPrivateIp": "10.0.0.4",
@@ -123,11 +123,12 @@
         "wadmetricsresourceid": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name , '/providers/', 'Microsoft.Compute/virtualMachines/')]",
         "wadcfgxend": "\"><MetricAggregation scheduledTransferPeriod=\"PT1H\"/><MetricAggregation scheduledTransferPeriod=\"PT1M\"/></Metrics></DiagnosticMonitorConfiguration></WadCfg>",
         "configureVnetDNSUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/vnet-with-dns-server.json",
-        "managementServerUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/vnet-with-dns-server.json",
+        "managementServerUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/ManagementServer_DOMAIN.json",
         "DSCUri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/builddc.zip?raw=true",
         "dscConfiguration": "dsc_createdomain.ps1\\CreateADPDC",
         "adConnectUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getADC.ps1",
         "location": "[resourceGroup().location]",
+        "resourceGroup": "[resourceGroup().name]",
         "subnets": [
             {
                 "name": "[variables('adSubnetName')]",
@@ -432,13 +433,37 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('configureVnetDNSUri')]",
+                    "uri": "[variables('managementServerUri')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "virtualMachineSize": {
+                        "value": "[parameters('managementServerSize')]"
+                    },
+                    "adminUserName": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "domainToJoin": {
+                        "value": "[parameters('fqDomainName')]"
+                    },
                     "virtualNetworkName": {
                         "value": "[variables('adVnetName')]"
+                    },
+                    "subnetName": {
+                        "value": "[variables('adSubnetName')]"
+                    },
+                    "virtualNetworkResourceGroupName": {
+                        "value": "[variables('resourceGroup')]"
                     }
+
+
+
+
+
+
                 }
             }
         },

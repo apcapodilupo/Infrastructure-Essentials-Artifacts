@@ -13,8 +13,8 @@
                 "Standard_D8s_v3"
             ]
         },
-        
-        "adminUPN": {
+
+        "adminUsername": {
             "type": "string"
         },
         "adminPassword": {
@@ -47,7 +47,8 @@
         "publicIpAddressSKU": "Basic",
         "virtualMachineName": "MGMTServer",
         "osDiskType": "Standard_LRS",
-        "localAdminName": "[first(split(parameters('adminUPN'), '@'))]",
+        "localAdminName": "[first(split(parameters('adminUsername'), '@'))]",
+        "adminUPN": "[concat(parameters('adminUsername'), '@', parameters('domainToJoin'))]",
         "customscriptURI": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getRSAT.ps1"
 
 
@@ -151,7 +152,7 @@
                         "settings": {
                             "name": "[parameters('domainToJoin')]",
                             "ouPath": "",
-                            "user": "[parameters('adminUPN')]",
+                            "user": "[variables('adminUPN')]",
                             "restart": "true",
                             "options": "3"
                         },
@@ -161,7 +162,6 @@
                     }
                 }
             ]
-
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
