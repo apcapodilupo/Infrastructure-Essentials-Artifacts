@@ -170,7 +170,7 @@
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]",
-                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'), '/extensions/joindomain')]"
+                "[concat('Microsoft.Compute/virtualMachines/extensions/', variables('virtualMachineName'), '/joindomain')]"
 
             ],
             "properties": {
