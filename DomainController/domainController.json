@@ -71,7 +71,25 @@
                 true,
                 false
             ]
+        },
+        "deployManagementServer": {
+            "type": "bool",
+            "allowedValues": [
+                true,
+                false
+            ]
+
+        },
+        "managementServerSize": {
+            "type": "String",
+            "allowedValues": [
+                "Standard_B2ms",
+                "Standard_D2s_v3",
+                "Standard_D4s_v3",
+                "Standard_D8s_v3"
+            ]
         }
+
     },
     "variables": {
         "dcServername": "azuredc",
@@ -88,6 +106,7 @@
         "gatewayType": "Vpn",
         "vpnType": "PolicyBased",
         "updateVNetDNS1": "updateVNetDNS",
+        "deployManagementServer": "deployManagementServer",    
         "vnetAddressRange": "10.0.0.0/16",
         "subnetAddressRange": "10.0.0.0/24",
         "dnsServerPrivateIp": "10.0.0.4",
@@ -104,6 +123,7 @@
         "wadmetricsresourceid": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name , '/providers/', 'Microsoft.Compute/virtualMachines/')]",
         "wadcfgxend": "\"><MetricAggregation scheduledTransferPeriod=\"PT1H\"/><MetricAggregation scheduledTransferPeriod=\"PT1M\"/></Metrics></DiagnosticMonitorConfiguration></WadCfg>",
         "configureVnetDNSUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/vnet-with-dns-server.json",
+        "managementServerUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/vnet-with-dns-server.json",
         "DSCUri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/builddc.zip?raw=true",
         "dscConfiguration": "dsc_createdomain.ps1\\CreateADPDC",
         "adConnectUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getADC.ps1",
@@ -396,6 +416,28 @@
                     },
                     "deployBastion": {
                         "value": "[variables('deployBastion')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2016-02-01",
+            "condition": "[parameters('deployManagementServer')]",
+            "name": "[variables('deployManagementServer')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]",
+                "[variables('updateVNetDNS1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('configureVnetDNSUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": {
+                        "value": "[variables('adVnetName')]"
                     }
                 }
             }

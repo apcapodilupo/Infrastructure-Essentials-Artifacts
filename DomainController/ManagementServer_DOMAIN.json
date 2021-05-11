@@ -48,7 +48,7 @@
         "virtualMachineName": "MGMTServer",
         "osDiskType": "Standard_LRS",
         "localAdminName": "[first(split(parameters('adminUPN'), '@'))]",
-        "customscriptURI": ""
+        "customscriptURI": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getRSAT.ps1"
 
 
     },
@@ -169,7 +169,8 @@
             "name": "[concat(variables('virtualMachineName'),'/RSAT-Custom-Script')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]"
+                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]",
+                "[concat(variables('virtualMachineName'), '/', 'joindomain')]"
             ],
             "properties": {
                 "publisher": "Microsoft.Compute",
@@ -179,7 +180,7 @@
                     "fileUris": [
                         "[variables('customscriptURI')]"
                     ],
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file getADC.ps1')]"
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file getRSAT.ps1')]"
                 }
             }
         }
