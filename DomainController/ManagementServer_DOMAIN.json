@@ -36,6 +36,7 @@
         "location": "[resourceGroup().location]",
         "virtualNetworkId": "[concat('/subscriptions/', variables('subscriptionID'), '/resourceGroups/', parameters('virtualNetworkResourceGroupName'), '/providers/Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
         "subnetRef": "[concat(variables('virtualNetworkId'), '/subnets/', parameters('subnetName'))]",
+        "nsgid": "[concat('/subscriptions/', variables('subscriptionID'), '/resourceGroups/', variables('ResourceGroupName'), '/providers/Microsoft.Network/networkSecurityGroups/default-nsg')]",
         "networkInterfaceName": "MGMTServer-NIC",
         "enableAcceleratedNetworking": true,
         "publicIpAddressName": "MGMTServer-PIP",
@@ -71,7 +72,11 @@
                             }
                         }
                     }
-                ]
+                ],
+                "networkSecurityGroup": {
+                    "id": "[variables('nsgId')]"
+                }
+
             }
         },
         {

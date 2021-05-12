@@ -88,8 +88,15 @@
                 "Standard_D4s_v3",
                 "Standard_D8s_v3"
             ]
+        },
+        "enableRdpOnVm": {
+            "type": "bool",
+            "allowedValues": [
+                true,
+                false
+            ]
         }
-
+        
     },
     "variables": {
         "dcServername": "azuredc",
@@ -173,7 +180,26 @@
                 "caching": "ReadOnly"
             }
         ],
-        "setDataDisks": "[if(equals(parameters('addtlDataDiskSize'), 'None'), variables('noAddtlDataDisks'), variables('dataDisks'))]"
+        "setDataDisks": "[if(equals(parameters('addtlDataDiskSize'), 'None'), variables('noAddtlDataDisks'), variables('dataDisks'))]",
+
+        "rdpRule": [
+            {
+                "name": "rdp-rule",
+                "properties": {
+                    "description": "Allow RDP",
+                    "protocol": "Tcp",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "3389",
+                    "sourceAddressPrefix": "Internet",
+                    "destinationAddressPrefix": "*",
+                    "access": "Allow",
+                    "priority": 100,
+                    "direction": "Inbound"
+                }
+            }
+        ],
+        "securityRules": [],
+        "setSecurityRules": "[ if(parameters('enableRdpOnVm'), variables('rdpRule'), variables('securityRules'))]"
 
     },
     "resources": [
@@ -182,7 +208,9 @@
             "apiVersion": "2018-08-01",
             "name": "[variables('defNsg')]",
             "location": "[resourceGroup().location]",
-            "properties": {}
+            "properties": {
+                "securityRules": "[variables('setSecurityRules')]"
+            }
         },
         {
             "type": "Microsoft.Network/virtualNetworks",
