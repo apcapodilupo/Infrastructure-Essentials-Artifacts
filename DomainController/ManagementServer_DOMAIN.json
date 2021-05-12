@@ -40,7 +40,7 @@
         "enableAcceleratedNetworking": true,
         "publicIpAddressName": "MGMTServer-PIP",
         "publicIpAddressSKU": "Basic",
-        "virtualMachineName": "MGMTServer",
+        "virtualMachineName": "mgmt-vm",
         "osDiskType": "Standard_LRS",
         "localAdminName": "[first(split(parameters('adminUsername'), '@'))]",
         "adminUPN": "[concat(parameters('adminUsername'), '@', parameters('domainToJoin'))]",
