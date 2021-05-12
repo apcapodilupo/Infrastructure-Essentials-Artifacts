@@ -31,6 +31,7 @@
     },
     "variables": {
         "subscriptionID": "[subscription().subscriptionId]",
+        "joinDomainExtensionName": "joindomain",
         "ResourceGroupName": "[resourceGroup().name]",
         "location": "[resourceGroup().location]",
         "virtualNetworkId": "[concat('/subscriptions/', variables('subscriptionID'), '/resourceGroups/', parameters('virtualNetworkResourceGroupName'), '/providers/Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
@@ -163,7 +164,9 @@
             "name": "[concat(variables('virtualMachineName'),'/RSAT-Custom-Script')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]"
+                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('virtualMachineName'), variables('joinDomainExtensionName'))]"
+
 
             ],
             "properties": {
