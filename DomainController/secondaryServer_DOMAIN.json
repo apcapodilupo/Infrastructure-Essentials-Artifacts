@@ -6,8 +6,9 @@
         "virtualMachineSize": {
             "type": "string"
         },
-
-
+        "windowsOSVersion": {
+            "type": "String"
+        },
         "adminUsername": {
             "type": "string"
         },
@@ -111,9 +112,9 @@
                         }
                     },
                     "imageReference": {
-                        "publisher": "MicrosoftWindowsDesktop",
-                        "offer": "Windows-10",
-                        "sku": "20h2-pron",
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "[parameters('windowsOSVersion')]",
                         "version": "latest"
                     }
                 },
@@ -162,30 +163,8 @@
                     }
                 }
             ]
-        },
-        {
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "apiVersion": "2018-06-01",
-            "name": "[concat(variables('virtualMachineName'),'/RSAT-Custom-Script')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('virtualMachineName'), variables('joinDomainExtensionName'))]"
-
-
-            ],
-            "properties": {
-                "publisher": "Microsoft.Compute",
-                "type": "CustomScriptExtension",
-                "typeHandlerVersion": "1.9",
-                "settings": {
-                    "fileUris": [
-                        "[variables('customscriptURI')]"
-                    ],
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file getRSAT.ps1')]"
-                }
-            }
         }
+        
 
     ]
 }
