@@ -46,7 +46,10 @@
         "osDiskType": "Standard_LRS",
         "localAdminName": "[first(split(parameters('adminUsername'), '@'))]",
         "adminUPN": "[concat(parameters('adminUsername'), '@', parameters('domainToJoin'))]",
-        "customscriptURI": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getRSAT.ps1"
+        "customscriptURI": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getRSAT.ps1",
+        "dscConfiguration": "dsc_configureserver.ps1\\configureServer",
+        "DSCuri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/dsc_configureserver.zip?raw=true"
+        
 
 
     },
@@ -144,6 +147,7 @@
                     "location": "[variables('location')]",
                     "dependsOn": [
                         "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]"
+
                     ],
                     "properties": {
                         "publisher": "Microsoft.Compute",
@@ -163,8 +167,31 @@
                     }
                 }
             ]
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2020-12-01",
+            "name": "[concat(variables('virtualMachineName'),'/InstallDomainController')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('virtualMachineName'), variables('joinDomainExtensionName'))]"
+
+            ],
+            "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.19",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "modulesUrl": "[variables('DSCUri')]",
+                    "configurationFunction": "[variables('dscConfiguration')]",
+                    "properties": {
+                    }
+                }
+            }
         }
-        
+
 
     ]
 }
