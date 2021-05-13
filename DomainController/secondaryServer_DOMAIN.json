@@ -147,7 +147,6 @@
                     "location": "[variables('location')]",
                     "dependsOn": [
                         "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]"
-
                     ],
                     "properties": {
                         "publisher": "Microsoft.Compute",

@@ -148,6 +148,7 @@
         "wadcfgxend": "\"><MetricAggregation scheduledTransferPeriod=\"PT1H\"/><MetricAggregation scheduledTransferPeriod=\"PT1M\"/></Metrics></DiagnosticMonitorConfiguration></WadCfg>",
         "configureVnetDNSUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/vnet-with-dns-server.json",
         "managementVMUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/managementVM_DOMAIN.json",
+        "secondaryServerUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/secondaryServer_DOMAIN.json",
         "DSCUri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/builddc.zip?raw=true",
         "dscConfiguration": "dsc_createdomain.ps1\\CreateADPDC",
         "adConnectUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getADC.ps1",
@@ -518,7 +519,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('managementVMUri')]",
+                    "uri": "[variables('secondaryServerUri')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
