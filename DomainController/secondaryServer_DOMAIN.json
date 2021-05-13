@@ -1,0 +1,191 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+
+        "virtualMachineSize": {
+            "type": "string"
+        },
+
+
+        "adminUsername": {
+            "type": "string"
+        },
+        "adminPassword": {
+            "type": "secureString"
+        },
+        "domainToJoin": {
+            "type": "String"
+        },
+        "virtualNetworkName": {
+            "type": "string"
+        },
+        "subnetName": {
+            "type": "string"
+        },
+
+        "virtualNetworkResourceGroupName": {
+            "type": "string"
+        }
+
+    },
+    "variables": {
+        "subscriptionID": "[subscription().subscriptionId]",
+        "joinDomainExtensionName": "joindomain",
+        "ResourceGroupName": "[resourceGroup().name]",
+        "location": "[resourceGroup().location]",
+        "virtualNetworkId": "[concat('/subscriptions/', variables('subscriptionID'), '/resourceGroups/', parameters('virtualNetworkResourceGroupName'), '/providers/Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+        "subnetRef": "[concat(variables('virtualNetworkId'), '/subnets/', parameters('subnetName'))]",
+        "nsgid": "[concat('/subscriptions/', variables('subscriptionID'), '/resourceGroups/', variables('ResourceGroupName'), '/providers/Microsoft.Network/networkSecurityGroups/default-nsg')]",
+        "networkInterfaceName": "MGMTServer-NIC",
+        "enableAcceleratedNetworking": true,
+        "publicIpAddressName": "MGMTServer-PIP",
+        "publicIpAddressSKU": "Basic",
+        "virtualMachineName": "mgmt-vm",
+        "osDiskType": "Standard_LRS",
+        "localAdminName": "[first(split(parameters('adminUsername'), '@'))]",
+        "adminUPN": "[concat(parameters('adminUsername'), '@', parameters('domainToJoin'))]",
+        "customscriptURI": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getRSAT.ps1"
+
+
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2018-10-01",
+            "name": "[variables('networkInterfaceName')]",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[variables('nsgId')]"
+                }
+
+            }
+        },
+        {
+            "name": "[variables('publicIpAddressName')]",
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2019-02-01",
+            "location": "[variables('location')]",
+            "properties": {
+                "publicIpAllocationMethod": "Dynamic"
+            },
+            "sku": {
+                "name": "[variables('publicIpAddressSKU')]"
+            }
+        },
+        {
+            "name": "[variables('virtualMachineName')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-03-01",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "[variables('osDiskType')]"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsDesktop",
+                        "offer": "Windows-10",
+                        "sku": "20h2-pron",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('virtualMachineName')]",
+                    "adminUsername": "[variables('localAdminName')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "windowsConfiguration": {
+                        "enableAutomaticUpdates": true,
+                        "provisionVmAgent": true
+                    }
+                },
+                "licenseType": "Windows_Server"
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Compute/virtualMachines/extensions",
+                    "apiVersion": "2018-10-01",
+                    "name": "[concat(variables('virtualMachineName'), '/', 'joindomain')]",
+                    "location": "[variables('location')]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Compute",
+                        "type": "JsonADDomainExtension",
+                        "typeHandlerVersion": "1.3",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "name": "[parameters('domainToJoin')]",
+                            "ouPath": "",
+                            "user": "[variables('adminUPN')]",
+                            "restart": "true",
+                            "options": "3"
+                        },
+                        "protectedSettings": {
+                            "password": "[parameters('adminPassword')]"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2018-06-01",
+            "name": "[concat(variables('virtualMachineName'),'/RSAT-Custom-Script')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('virtualMachineName'), variables('joinDomainExtensionName'))]"
+
+
+            ],
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.9",
+                "settings": {
+                    "fileUris": [
+                        "[variables('customscriptURI')]"
+                    ],
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file getRSAT.ps1')]"
+                }
+            }
+        }
+
+    ]
+}

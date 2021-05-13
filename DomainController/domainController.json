@@ -72,6 +72,25 @@
                 false
             ]
         },
+        "deploySecondaryServer": {
+            "type": "bool",
+            "allowedValues": [
+                true,
+                false
+            ]
+
+        },
+        "secondaryServerSize": {
+            "type": "String",
+            "allowedValues": [
+                "Standard_B2ms",
+                "Standard_D2s_v3",
+                "Standard_D4s_v3",
+                "Standard_D8s_v3"
+            ]
+        },
+
+
         "deployManagementVM": {
             "type": "bool",
             "allowedValues": [
@@ -89,14 +108,10 @@
                 "Standard_D8s_v3"
             ]
         },
-        "enableRdpOnVm": {
-            "type": "bool",
-            "allowedValues": [
-                true,
-                false
-            ]
+        "allowRdp": {
+            "type": "bool"
         }
-        
+
     },
     "variables": {
         "dcServername": "azuredc",
@@ -199,7 +214,7 @@
             }
         ],
         "securityRules": [],
-        "setSecurityRules": "[ if(parameters('enableRdpOnVm'), variables('rdpRule'), variables('securityRules'))]"
+        "setSecurityRules": "[ if(parameters('allowRdp'), variables('rdpRule'), variables('securityRules'))]"
 
     },
     "resources": [
