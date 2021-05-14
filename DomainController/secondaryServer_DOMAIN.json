@@ -9,7 +9,7 @@
         "windowsOSVersion": {
             "type": "String"
         },
-        
+
         "adminUsername": {
             "type": "string"
         },
@@ -39,11 +39,11 @@
         "virtualNetworkId": "[concat('/subscriptions/', variables('subscriptionID'), '/resourceGroups/', parameters('virtualNetworkResourceGroupName'), '/providers/Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
         "subnetRef": "[concat(variables('virtualNetworkId'), '/subnets/', parameters('subnetName'))]",
         "nsgid": "[concat('/subscriptions/', variables('subscriptionID'), '/resourceGroups/', variables('ResourceGroupName'), '/providers/Microsoft.Network/networkSecurityGroups/default-nsg')]",
-        "networkInterfaceName": "MGMTServer-NIC",
+        "networkInterfaceName": "secondaryServer-NIC",
         "enableAcceleratedNetworking": true,
-        "publicIpAddressName": "MGMTServer-PIP",
+        "publicIpAddressName": "secondaryServer-PIP",
         "publicIpAddressSKU": "Basic",
-        "virtualMachineName": "mgmt-vm",
+        "virtualMachineName": "secondaryServer",
         "osDiskType": "Standard_LRS",
         "localAdminName": "[first(split(parameters('adminUsername'), '@'))]",
         "adminUPN": "[concat(parameters('adminUsername'), '@', parameters('domainToJoin'))]",
