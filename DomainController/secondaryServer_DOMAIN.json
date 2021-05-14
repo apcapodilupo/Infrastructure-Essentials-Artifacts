@@ -9,6 +9,7 @@
         "windowsOSVersion": {
             "type": "String"
         },
+        
         "adminUsername": {
             "type": "string"
         },
