@@ -526,7 +526,7 @@
                     "virtualMachineSize": {
                         "value": "[parameters('secondaryServerSize')]"
                     },
-                    "windowOSVersion": {
+                    "windowsOSVersion": {
                         "value": "[parameters('windowsOSVersion')]"
                     },
                     "adminUserName": {
