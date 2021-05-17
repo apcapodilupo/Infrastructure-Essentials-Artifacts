@@ -99,6 +99,13 @@
             ]
 
         },
+        "installIIS": {
+            "type": "bool",
+            "allowedValues": [
+                true,
+                false
+            ]
+        },
         "managementVMSize": {
             "type": "String",
             "allowedValues": [
@@ -546,7 +553,11 @@
                     },
                     "virtualNetworkResourceGroupName": {
                         "value": "[variables('resourceGroup')]"
+                    },
+                    "installIIS": {
+                        "value": "[parameters('installIIS')]"
                     }
+
                 }
             }
         },

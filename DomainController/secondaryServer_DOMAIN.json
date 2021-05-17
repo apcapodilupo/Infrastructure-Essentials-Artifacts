@@ -28,7 +28,15 @@
 
         "virtualNetworkResourceGroupName": {
             "type": "string"
+        },
+        "installIIS": {
+            "type": "bool",
+            "allowedValues": [
+                true,
+                false
+            ]
         }
+
 
     },
     "variables": {
@@ -50,7 +58,7 @@
         "customscriptURI": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getRSAT.ps1",
         "dscConfiguration": "dsc_configureserver.ps1\\configureServer",
         "DSCuri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/dsc_configureserver.zip?raw=true"
-        
+
 
 
     },
@@ -187,7 +195,8 @@
                     "modulesUrl": "[variables('DSCUri')]",
                     "configurationFunction": "[variables('dscConfiguration')]",
                     "properties": {
-                        
+                        "installIIS": "[parameters('installIIS')]"
+
                     }
                 }
             }
