@@ -187,11 +187,10 @@
                     "modulesUrl": "[variables('DSCUri')]",
                     "configurationFunction": "[variables('dscConfiguration')]",
                     "properties": {
+                        
                     }
                 }
             }
         }
-
-
     ]
 }
