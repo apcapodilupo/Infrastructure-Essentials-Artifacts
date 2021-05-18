@@ -35,6 +35,13 @@
                 true,
                 false
             ]
+        },
+        "installDHCP": {
+            "type": "bool",
+            "allowedValues": [
+                true,
+                false
+            ]
         }
 
 
@@ -57,8 +64,9 @@
         "adminUPN": "[concat(parameters('adminUsername'), '@', parameters('domainToJoin'))]",
         "customscriptURI": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getRSAT.ps1",
         "dscConfiguration": "dsc_configureserver.ps1\\configureServer",
-        "DSCuri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/dsc_configureserver.zip?raw=true"
-
+        "DSCuri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/dsc_configureserver.zip?raw=true",
+        "dscExtensionName": "configureServer",
+        "adConnectUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getADC.ps1"
 
 
     },
@@ -176,10 +184,11 @@
                 }
             ]
         },
+        
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2020-12-01",
-            "name": "[concat(variables('virtualMachineName'),'/InstallDomainController')]",
+            "name": "[concat(variables('virtualMachineName'),'/ConfigureServer')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]",
@@ -195,9 +204,31 @@
                     "modulesUrl": "[variables('DSCUri')]",
                     "configurationFunction": "[variables('dscConfiguration')]",
                     "properties": {
-                        "installIIS": "[parameters('installIIS')]"
+                        "installIIS": "[parameters('installIIS')]",
+                        "installDHCP": "[parameters('installDHCP')]"
 
                     }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2018-06-01",
+            "name": "[concat(variables('virtualMachineName'),'/getADC')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('virtualMachineName'), variables('dscExtensionName'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.9",
+                "settings": {
+                    "fileUris": [
+                        "[variables('adConnectUri')]"
+                    ],
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file getADC.ps1')]"
                 }
             }
         }

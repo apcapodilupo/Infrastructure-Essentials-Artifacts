@@ -106,6 +106,14 @@
                 false
             ]
         },
+        "installDHCP": {
+            "type": "bool",
+            "allowedValues": [
+                true,
+                false
+            ]
+        },
+
         "managementVMSize": {
             "type": "String",
             "allowedValues": [
@@ -556,8 +564,10 @@
                     },
                     "installIIS": {
                         "value": "[parameters('installIIS')]"
+                    },
+                    "installDHCP": {
+                        "value": "[parameters('installDHCP')]"
                     }
-
                 }
             }
         },
