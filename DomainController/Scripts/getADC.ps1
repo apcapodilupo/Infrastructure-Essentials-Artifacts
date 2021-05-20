@@ -1,6 +1,6 @@
-﻿    #Variables
-    $URI = "https://download.microsoft.com/download/B/0/0/B00291D0-5A83-4DE7-86F5-980BC00DE05A/AzureADConnect.msi"
-    #Create Directory
-    New-Item -ItemType "directory" -Path "C:\AzureADConnect\" 
-    #Get Azure AD Connect installer
-    Invoke-WebRequest -UseBasicparsing -Uri $URI -OutFile "C:\AzureADConnect\AzureADConnect.msi"
+﻿
+    #install chocolatey
+    Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/apcapodilupo/WVD_2020/main/Scripts/install.ps1'))
+    choco install azure-ad-connect -yes --ignore-checksums
+    #Create the Storage Accounts OU
+    New-ADOrganizationalUnit -Name "Storage Accounts"
