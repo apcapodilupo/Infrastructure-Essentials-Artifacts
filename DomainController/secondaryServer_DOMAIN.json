@@ -228,7 +228,7 @@
                     "fileUris": [
                         "[variables('adConnectUri')]"
                     ],
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file getADC.ps1')]"
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file getADC-Server2.ps1')]"
                 }
             }
         }
