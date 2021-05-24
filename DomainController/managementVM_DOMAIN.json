@@ -53,9 +53,34 @@
         "localAdminName": "[first(split(parameters('adminUsername'), '@'))]",
         "adminUPN": "[concat(parameters('adminUsername'), '@', parameters('domainToJoin'))]",
         "customscriptURI": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getRSAT.ps1",
-        "setpublicIpAddress": "[if(parameters('allowRdp'), variables('publicIpAddress'), variables('noPublicIpAddress'))]",
         "publicIpAddress": { "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]" },
-        "noPublicIpAddress": {}
+        "publicIpConfig": [
+            {
+                "name": "pipconfig",
+                "properties": {
+                    "privateIPAllocationMethod": "Dynamic",
+                    "subnet": {
+                        "id": "[variables('subnetRef')]"
+                    },
+                    "publicIpAddress": "[variables('publicIpAddress')]"
+                }
+            }
+        ],
+
+        "noPublicIpConfig": [
+            {
+                "name": "noPipconfig",
+                "properties": {
+                    "privateIPAllocationMethod": "Dynamic",
+                    "subnet": {
+                        "id": "[variables('subnetRef')]"
+                    }
+                }
+            }
+        ],
+        "setIpConfig" :"[if(parameters('allowRdp'), variables('publicIpConfig'), variables('noPublicIpConfig'))]"
+
+
 
 
     },
@@ -69,18 +94,7 @@
                 "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
             ],
             "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig1",
-                        "properties": {
-                            "subnet": {
-                                "id": "[variables('subnetRef')]"
-                            },
-                            "privateIPAllocationMethod": "Dynamic",
-                            "publicIpAddress": "[variables('setpublicIpAddress')]"
-                        }
-                    }
-                ],
+                "ipConfigurations": "[variables('setIpConfig')]",
                 "networkSecurityGroup": {
                     "id": "[variables('nsgId')]"
                 }

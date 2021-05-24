@@ -233,9 +233,34 @@
             }
         ],
 
-        "setpublicIpAddress": "[if(parameters('allowRdp'), variables('publicIpAddress'), variables('noPublicIpAddress'))]",
         "publicIpAddress": { "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]" },
-        "noPublicIpAddress": {},
+
+        "publicIpConfig": [
+            {
+                "name": "pipconfig",
+                "properties": {
+                    "privateIPAllocationMethod": "Dynamic",
+                    "subnet": {
+                        "id": "[variables('subnet-id')]"
+                    },
+                    "publicIpAddress": "[variables('publicIpAddress')]"
+                }
+            }
+        ],
+
+        "noPublicIpConfig": [
+            {
+                "name": "noPipconfig",
+                "properties": {
+                    "privateIPAllocationMethod": "Dynamic",
+                    "subnet": {
+                        "id": "[variables('subnet-id')]"
+                    }
+                }
+            }
+        ],
+        "setIpConfig" :"[if(parameters('allowRdp'), variables('publicIpConfig'), variables('noPublicIpConfig'))]",
+
 
         "securityRules": [],
         "setSecurityRules": "[ if(parameters('allowRdp'), variables('rdpRule'), variables('securityRules'))]"
@@ -309,18 +334,7 @@
                 "[variables('adVnetName')]"
             ],
             "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig1",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "subnet": {
-                                "id": "[variables('subnet-id')]"
-                            },
-                            "publicIpAddress": "[variables('setpublicIpAddress')]"
-                        }
-                    }
-                ]
+                "ipConfigurations": "[variables('setIpConfig')]"
             }
         },
 

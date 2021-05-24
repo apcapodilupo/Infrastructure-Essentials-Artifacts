@@ -75,9 +75,34 @@
         "DSCuri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/dsc_configureserver.zip?raw=true",
         "dscExtensionName": "configureServer",
         "adConnectUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getADC-Server2.ps1",
-        "setpublicIpAddress": "[if(parameters('allowRdp'), variables('publicIpAddress'), variables('noPublicIpAddress'))]",
         "publicIpAddress": { "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]" },
-        "noPublicIpAddress": {}
+
+        "publicIpConfig": [
+            {
+                "name": "pipconfig",
+                "properties": {
+                    "privateIPAllocationMethod": "Dynamic",
+                    "subnet": {
+                        "id": "[variables('subnetRef')]"
+                    },
+                    "publicIpAddress": "[variables('publicIpAddress')]"
+                }
+            }
+        ],
+
+        "noPublicIpConfig": [
+            {
+                "name": "noPipconfig",
+                "properties": {
+                    "privateIPAllocationMethod": "Dynamic",
+                    "subnet": {
+                        "id": "[variables('subnetRef')]"
+                    }
+                }
+            }
+        ],
+        "setIpConfig" :"[if(parameters('allowRdp'), variables('publicIpConfig'), variables('noPublicIpConfig'))]"
+
 
 
     },
@@ -91,18 +116,7 @@
                 "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
             ],
             "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig1",
-                        "properties": {
-                            "subnet": {
-                                "id": "[variables('subnetRef')]"
-                            },
-                            "privateIPAllocationMethod": "Dynamic",
-                            "publicIpAddress": "[variables('setpublicIpAddress')]" 
-                        }
-                    }
-                ],
+                "ipConfigurations": "[variables('setIpConfig')]",
                 "networkSecurityGroup": {
                     "id": "[variables('nsgId')]"
                 }
