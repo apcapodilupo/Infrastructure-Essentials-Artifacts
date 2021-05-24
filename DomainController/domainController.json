@@ -148,6 +148,8 @@
         "vnetAddressRange": "10.0.0.0/16",
         "subnetAddressRange": "10.0.0.0/24",
         "dnsServerPrivateIp": "10.0.0.4",
+        "publicIpAddressName": "DomainController-PIP",
+        "publicIpAddressSKU": "Basic",
         "subnet-id": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('adVnetName')),'/subnets/', variables('adSubnetName'))]",
         "storageAccountName": "[concat('diagsa', uniquestring(resourceGroup().id))]",
         "storageAccountType": "Standard_LRS",
@@ -230,6 +232,7 @@
                 }
             }
         ],
+        "publicIpAddress": {"id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"},
         "securityRules": [],
         "setSecurityRules": "[ if(parameters('allowRdp'), variables('rdpRule'), variables('securityRules'))]"
 
@@ -280,9 +283,46 @@
         },
 
         {
+            "name": "[variables('publicIpAddressName')]",
+            "type": "Microsoft.Network/publicIpAddresses",
+            "condition": "[parameters('allowRdp')]",
+            "apiVersion": "2019-02-01",
+            "location": "[variables('location')]",
+            "properties": {
+                "publicIpAllocationMethod": "Dynamic"
+            },
+            "sku": {
+                "name": "[variables('publicIpAddressSKU')]"
+            }
+        },
+
+        {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2016-03-30",
             "name": "[concat(variables('dcServerName'),'-nic')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[variables('adVnetName')]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[variables('subnet-id')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2016-03-30",
+            "condition": "[not(parameters('allowRdp'))]",
+            "name": "[concat(variables('dcServerName'),'-nic2')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[variables('adVnetName')]"
