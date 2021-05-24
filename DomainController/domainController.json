@@ -232,7 +232,11 @@
                 }
             }
         ],
+        
+        "setpublicIpAddress": "[if(parameters('allowRdp'), variables('publicIpAddress'), variables('noPublicIpAddress'))]",
         "publicIpAddress": {"id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"},
+        "noPublicIpAddress": {},
+
         "securityRules": [],
         "setSecurityRules": "[ if(parameters('allowRdp'), variables('rdpRule'), variables('securityRules'))]"
 
@@ -312,35 +316,14 @@
                             "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
                                 "id": "[variables('subnet-id')]"
-                            }
+                            },
+                            "publicIpAddress": "[variables('setpublicIpAddress')]"
                         }
                     }
                 ]
             }
         },
-        {
-            "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2016-03-30",
-            "condition": "[not(parameters('allowRdp'))]",
-            "name": "[concat(variables('dcServerName'),'-nic2')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[variables('adVnetName')]"
-            ],
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig1",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "subnet": {
-                                "id": "[variables('subnet-id')]"
-                            }
-                        }
-                    }
-                ]
-            }
-        },
+        
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2016-01-01",
