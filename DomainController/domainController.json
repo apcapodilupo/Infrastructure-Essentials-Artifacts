@@ -232,9 +232,9 @@
                 }
             }
         ],
-        
+
         "setpublicIpAddress": "[if(parameters('allowRdp'), variables('publicIpAddress'), variables('noPublicIpAddress'))]",
-        "publicIpAddress": {"id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"},
+        "publicIpAddress": { "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]" },
         "noPublicIpAddress": {},
 
         "securityRules": [],
@@ -323,7 +323,7 @@
                 ]
             }
         },
-        
+
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2016-01-01",
@@ -545,7 +545,11 @@
                     },
                     "virtualNetworkResourceGroupName": {
                         "value": "[variables('resourceGroup')]"
+                    },
+                    "allowRdp": {
+                        "value": "[parameters('allowRdp')]"
                     }
+
                 }
             }
         },
@@ -596,6 +600,9 @@
                     },
                     "installDHCP": {
                         "value": "[parameters('installDHCP')]"
+                    },
+                    "allowRdp": {
+                        "value": "[parameters('allowRdp')]"
                     }
                 }
             }
