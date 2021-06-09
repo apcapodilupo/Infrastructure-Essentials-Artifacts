@@ -76,7 +76,6 @@
         "enableAcceleratedNetworking": true,
         "publicIpAddressName": "secondaryServer-PIP",
         "publicIpAddressSKU": "Basic",
-        "virtualMachineName": "secondaryServer",
         "osDiskType": "Standard_LRS",
         "localAdminName": "[first(split(parameters('adminUsername'), '@'))]",
         "adminUPN": "[concat(parameters('adminUsername'), '@', parameters('domainToJoin'))]",
@@ -194,7 +193,7 @@
                 {
                     "type": "Microsoft.Compute/virtualMachines/extensions",
                     "apiVersion": "2018-10-01",
-                    "name": "[concat(variables('virtualMachineName'), '/', 'joindomain')]",
+                    "name": "[concat(parameters('secondaryServerName'), '/', 'joindomain')]",
                     "location": "[variables('location')]",
                     "dependsOn": [
                         "[concat('Microsoft.Compute/virtualMachines/', parameters('secondaryServerName'))]"
@@ -222,11 +221,11 @@
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2020-12-01",
-            "name": "[concat(variables('virtualMachineName'),'/ConfigureServer')]",
+            "name": "[concat(parameters('secondaryServerName'),'/ConfigureServer')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('virtualMachineName'), variables('joinDomainExtensionName'))]"
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('secondaryServerName'))]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('secondaryServerName'), variables('joinDomainExtensionName'))]"
 
             ],
             "properties": {
@@ -249,11 +248,11 @@
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2018-06-01",
             "condition": "[parameters('installADConnect')]",
-            "name": "[concat(variables('virtualMachineName'),'/getADC')]",
+            "name": "[concat(parameters('secondaryServerName'),'/getADC')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('virtualMachineName'), variables('dscExtensionName'))]"
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('secondaryServerName'))]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('secondaryServerName'), variables('dscExtensionName'))]"
             ],
             "properties": {
                 "publisher": "Microsoft.Compute",
