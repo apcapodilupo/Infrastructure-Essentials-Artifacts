@@ -197,7 +197,7 @@
                     "name": "[concat(variables('virtualMachineName'), '/', 'joindomain')]",
                     "location": "[variables('location')]",
                     "dependsOn": [
-                        "[concat('Microsoft.Compute/virtualMachines/', variables('virtualMachineName'))]"
+                        "[concat('Microsoft.Compute/virtualMachines/', parameters('secondaryServerName'))]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Compute",
