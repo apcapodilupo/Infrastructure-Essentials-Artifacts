@@ -80,6 +80,10 @@
             ]
 
         },
+        "secondaryServerName": {
+            "defaultValue": "secondaryServer",
+            "type": "String"
+        },
         "secondaryServerSize": {
             "type": "String",
             "allowedValues": [
@@ -90,7 +94,6 @@
             ]
         },
 
-
         "deployManagementVM": {
             "type": "bool",
             "allowedValues": [
@@ -98,6 +101,26 @@
                 false
             ]
 
+        },
+        "managementVMName": {
+            "defaultValue": "",
+            "type": "String"
+        },
+        "installADConnect": {
+            "type": "bool",
+            "allowedValues": [
+                true,
+                false
+            ]
+        },
+        "managementVMSize": {
+            "type": "String",
+            "allowedValues": [
+                "Standard_B2ms",
+                "Standard_D2s_v3",
+                "Standard_D4s_v3",
+                "Standard_D8s_v3"
+            ]
         },
         "installIIS": {
             "type": "bool",
@@ -111,16 +134,6 @@
             "allowedValues": [
                 true,
                 false
-            ]
-        },
-
-        "managementVMSize": {
-            "type": "String",
-            "allowedValues": [
-                "Standard_B2ms",
-                "Standard_D2s_v3",
-                "Standard_D4s_v3",
-                "Standard_D8s_v3"
             ]
         },
         "allowRdp": {
@@ -259,7 +272,7 @@
                 }
             }
         ],
-        "setIpConfig" :"[if(parameters('allowRdp'), variables('publicIpConfig'), variables('noPublicIpConfig'))]",
+        "setIpConfig": "[if(parameters('allowRdp'), variables('publicIpConfig'), variables('noPublicIpConfig'))]",
 
 
         "securityRules": [],
@@ -548,6 +561,9 @@
                     "adminPassword": {
                         "value": "[parameters('adminPassword')]"
                     },
+                    "managementVMName": {
+                        "value": "[parameters('managementVMName')]"
+                    },
                     "domainToJoin": {
                         "value": "[parameters('fqDomainName')]"
                     },
@@ -591,6 +607,9 @@
                     "windowsOSVersion": {
                         "value": "[parameters('windowsOSVersion')]"
                     },
+                    "secondaryServerName": {
+                        "value": "[parameters('secondaryServerName')]"
+                    },
                     "adminUserName": {
                         "value": "[parameters('adminUsername')]"
                     },
@@ -608,6 +627,9 @@
                     },
                     "virtualNetworkResourceGroupName": {
                         "value": "[variables('resourceGroup')]"
+                    },
+                    "installADConnect": {
+                        "value": "[parameters('installADConnect')]"
                     },
                     "installIIS": {
                         "value": "[parameters('installIIS')]"

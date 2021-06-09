@@ -14,6 +14,10 @@
         "adminPassword": {
             "type": "secureString"
         },
+        "managementVMName": {
+            "defaultValue": "",
+            "type": "String"
+        },
         "domainToJoin": {
             "type": "String"
         },
@@ -78,7 +82,7 @@
                 }
             }
         ],
-        "setIpConfig" :"[if(parameters('allowRdp'), variables('publicIpConfig'), variables('noPublicIpConfig'))]"
+        "setIpConfig": "[if(parameters('allowRdp'), variables('publicIpConfig'), variables('noPublicIpConfig'))]"
 
 
 
@@ -148,7 +152,7 @@
                     ]
                 },
                 "osProfile": {
-                    "computerName": "[variables('virtualMachineName')]",
+                    "computerName": "[parameters('managementVMName')]",
                     "adminUsername": "[variables('localAdminName')]",
                     "adminPassword": "[parameters('adminPassword')]",
                     "windowsConfiguration": {
