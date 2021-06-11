@@ -184,6 +184,8 @@
         "adConnectUri": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getADC.ps1",
         "location": "[resourceGroup().location]",
         "resourceGroup": "[resourceGroup().name]",
+        "localAdminName": "[first(split(parameters('adminUsername'), '@'))]",
+
         "subnets": [
             {
                 "name": "[variables('adSubnetName')]",
@@ -376,7 +378,7 @@
                 },
                 "osProfile": {
                     "computerName": "[variables('dcServerName')]",
-                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminUsername": "[variables('localAdminName')]",
                     "adminPassword": "[parameters('adminPassword')]"
                 },
                 "storageProfile": {
@@ -692,11 +694,12 @@
                 }
             }
         }
-
-
-
-
-
-
-    ]
+        
+    ],
+    "outputs": {
+        "rdshVmNamesObject": {
+            "type": "String",
+            "value": "[variables('localAdminName')]"
+        }
+    }
 }

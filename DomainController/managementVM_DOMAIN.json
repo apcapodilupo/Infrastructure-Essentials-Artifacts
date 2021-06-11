@@ -213,5 +213,12 @@
             }
         }
 
-    ]
+    ],
+            "outputs": {
+        "rdshVmNamesObject": {
+            "type": "String",
+            "value": "[variables('adminUPN')]"
+        }
+    }
+
 }
