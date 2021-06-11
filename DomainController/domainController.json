@@ -81,7 +81,7 @@
 
         },
         "secondaryServerName": {
-            "defaultValue": "secondaryServer",
+            "defaultValue": "",
             "type": "String"
         },
         "secondaryServerSize": {

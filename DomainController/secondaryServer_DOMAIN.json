@@ -79,7 +79,6 @@
         "osDiskType": "Standard_LRS",
         "localAdminName": "[first(split(parameters('adminUsername'), '@'))]",
         "adminUPN": "[concat(parameters('adminUsername'), '@', parameters('domainToJoin'))]",
-        "customscriptURI": "https://raw.githubusercontent.com/apcapodilupo/Infrastructure-Essentials-Artifacts/main/DomainController/Scripts/getRSAT.ps1",
         "dscConfiguration": "dsc_configureserver.ps1\\configureServer",
         "DSCuri": "https://github.com/apcapodilupo/Infrastructure-Essentials-Artifacts/blob/main/DomainController/DSC/dsc_configureserver.zip?raw=true",
         "dscExtensionName": "configureServer",
