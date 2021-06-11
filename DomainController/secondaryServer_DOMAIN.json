@@ -223,8 +223,7 @@
             "name": "[concat(parameters('secondaryServerName'),'/ConfigureServer')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', parameters('secondaryServerName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('secondaryServerName'), variables('joinDomainExtensionName'))]"
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('secondaryServerName'))]"
 
             ],
             "properties": {
