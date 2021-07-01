@@ -166,7 +166,7 @@
                 {
                     "type": "Microsoft.Compute/virtualMachines/extensions",
                     "apiVersion": "2018-10-01",
-                    "name": "[concat(variables('virtualMachineName'), '/', 'joindomain')]",
+                    "name": "[concat(parameters('managementVMName'), '/', 'joindomain')]",
                     "location": "[variables('location')]",
                     "dependsOn": [
                         "[concat('Microsoft.Compute/virtualMachines/', parameters('managementVMName'))]"
@@ -193,7 +193,7 @@
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2018-06-01",
-            "name": "[concat(variables('virtualMachineName'),'/RSAT-Custom-Script')]",
+            "name": "[concat(parameters('managementVMName'),'/RSAT-Custom-Script')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[concat('Microsoft.Compute/virtualMachines/', parameters('managementVMName'))]"
