@@ -109,7 +109,7 @@
                 }
             }
         ],
-        "setIpConfig" :"[if(parameters('allowRdp'), variables('publicIpConfig'), variables('noPublicIpConfig'))]"
+        "setIpConfig": "[if(parameters('allowRdp'), variables('publicIpConfig'), variables('noPublicIpConfig'))]"
 
 
 
@@ -223,8 +223,8 @@
             "name": "[concat(parameters('secondaryServerName'),'/ConfigureServer')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', parameters('secondaryServerName'))]"
-
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('secondaryServerName'))]",
+                "[concat('Microsoft.Compute/virtualMachines/extensions', parameters('secondaryServerName'), 'joindomain')]"
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
@@ -264,9 +264,9 @@
                 }
             }
         }
-        
+
     ],
-        "outputs": {
+    "outputs": {
         "rdshVmNamesObject": {
             "type": "String",
             "value": "[variables('adminUPN')]"
