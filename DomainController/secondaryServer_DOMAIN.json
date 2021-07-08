@@ -224,7 +224,7 @@
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[concat('Microsoft.Compute/virtualMachines/', parameters('secondaryServerName'))]",
-                "[concat('Microsoft.Compute/virtualMachines/extensions', parameters('secondaryServerName'), 'joindomain')]"
+                "[concat('Microsoft.Compute/virtualMachines/extensions/', parameters('secondaryServerName'), '/joindomain')]"
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
