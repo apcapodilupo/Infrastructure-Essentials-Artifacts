@@ -543,6 +543,7 @@
             "name": "[variables('deployManagementVM')]",
             "dependsOn": [
                 "[variables('updateVNetDNS1')]",
+                "[variables('secondaryServer')]",
                 "[concat('Microsoft.Compute/virtualMachines/', variables('dcServername'))]",
                 "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('dscExtensionName'))]",
                 "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('dcServerName'), variables('adcExtensionName'))]"
