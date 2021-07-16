@@ -185,7 +185,6 @@
         "location": "[resourceGroup().location]",
         "resourceGroup": "[resourceGroup().name]",
         "localAdminName": "[first(split(parameters('adminUsername'), '@'))]",
-
         "subnets": [
             {
                 "name": "[variables('adSubnetName')]",
