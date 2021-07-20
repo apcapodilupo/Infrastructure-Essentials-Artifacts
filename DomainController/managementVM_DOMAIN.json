@@ -196,9 +196,8 @@
             "name": "[concat(parameters('managementVMName'),'/RSAT-Custom-Script')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', parameters('managementVMName'))]"
-
-
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('managementVMName'))]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('managementVMName'), 'joindomain')]"
             ],
             "properties": {
                 "publisher": "Microsoft.Compute",
